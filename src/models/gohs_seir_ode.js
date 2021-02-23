@@ -169,7 +169,7 @@ export function map_goh_states_into_UFStates(goh_states, N, P_ICU) {
 export function goh_default_action_markers(P_all_historical) {
     return [
         new ActionMarkerData(380, "Cold weather", 0.1),
-        new ActionMarkerData(450, "Vaccinations", -0.3),
+        new ActionMarkerData(450, "Test", -0.3),
     ].filter(am => {
         // Prevent action markers from falling behind the historical marker
         return am.day > P_all_historical.length
