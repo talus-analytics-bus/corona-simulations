@@ -12,9 +12,11 @@
     export let P_bars;
     export let active_;
     export let indexToTime;
-    export let firstBarDate;
+    // export let firstBarDate;
     export let peakICUDay;
     export let peakICUCount;
+
+    // $: P_all, console.log(P_all)
 
     function sumOfRoundedArrayValues(arr) {
         var s = 0
@@ -83,15 +85,24 @@
         left: -3px;
         position: relative;
     }
+
+    .outcomeList {
+        list-style-type: none;
+        margin-top: 3px;
+    }
+
+    .outcomeHeader {
+        font-size: 1.1em;
+    }
 </style>
 
 <div class="legendtext" style="position:absolute; left:-110px; top:-155px; width:230px; height: 100px; font-size: 13px; line-height:16px; font-weight: normal; text-align: center; background-color: white; z-index: 10000;">
-    <b>Scenario outcome</b>
+    <b class="outcomeHeader">Scenario Results</b>
     <span style="text-align: left;">
-        <ul style="margin-top:3px;">
-            <li>{formatCount(P_all[P_all.length-1]['fatalities'])} fatalities in first {P_all.length} days.</li>
+        <ul class="outcomeList">
+            <li>{formatCount(P_all[P_all.length-2]['fatalities'])} fatalities in first {P_all.length} days.</li>
             {#if peakICUDay < P_all.length-50}
-                <li>Peak ICU on {getDate(firstBarDate, peakICUDay)}.</li>
+                <li>Peak ICU on {peakICUDay}.</li>
                 <li>{peakICUCount} ICU patients at peak.</li>
             {:else}
                 <li>Peak possibly not reached!</li>
@@ -105,7 +116,8 @@
 <div class="legendtext" style="position:absolute; left:-70px; top:-35px; width:150px; height: 100px; font-size: 13px; line-height:16px; font-weight: normal; text-align: center">
 <b>Highlighted day</b>
 <!--<br>Day {getDay(active_)}-->
-<br>{getDate(firstBarDate, getDay(active_))}
+<!-- <br>{getDate(firstBarDate, getDay(active_))} -->
+<br>{active_}
 </div>
 
 {#each stateMeta as state,i}

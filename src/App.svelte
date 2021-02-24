@@ -33,7 +33,7 @@
 
   // Static data imports
   import paramConfig from './paramConfig.json';
-  import hs_parsed from '../data/hs_parsed.json';
+  // import hs_parsed from '../data/hs_parsed.json';
   import latestRtEstimate from './../data/latest_Rt.csv';
 
   function range(n){
@@ -70,8 +70,8 @@
   // Do not refactor into paramConfig.
   let paramConfigR0 = {
     description: `Basic Reproduction Number {R0} (initially)`,
-    isDefaultValueAutomaticallyGeneratedFromData: true,
-    defaultValue: 2, // Will be overwritten by a reactive function.
+    isDefaultValueAutomaticallyGeneratedFromData: false,
+    defaultValue: 2, // Will be overwritten by a reactive function. // yeah but with the same value now!
     minValue: 0.01,
     maxValue: 5,
     stepValue: 0.01,
@@ -126,11 +126,12 @@
   }
 
 
-  $: N                 = 5538328 // 2020 Finnish population count
+  $: N                 = paramConfig['population'].defaultValue
   $: logN              = Math.log(N)
-  $: I0                = 1
-  $: undetected_infections = paramConfig["undetected_infections"].defaultValue
-  $: unrecorded_deaths = paramConfig["unrecorded_deaths"].defaultValue
+  // $: I0                = 1
+  $: I0                 = paramConfig['initial_infections'].defaultValue
+  // $: undetected_infections = paramConfig["undetected_infections"].defaultValue
+  // $: unrecorded_deaths = paramConfig["unrecorded_deaths"].defaultValue
   $: D_incbation       = paramConfig["days_from_incubation_to_infectious"].defaultValue
   $: D_infectious      = paramConfig["days_from_infectious_to_not_infectious"].defaultValue
   $: D_recovery_mild   = paramConfig["days_in_mild_recovering_state"].defaultValue
@@ -142,6 +143,28 @@
   $: P_SEVERE          = paramConfig["hospitalization_rate"].defaultValue
   $: P_ICU             = paramConfig["icu_rate_from_hospitalized"].defaultValue
   $: icuCapacity       = paramConfig["icu_capacity"].defaultValue
+
+  $: dt, console.log(dt)
+
+  const onChange_P_SEVERE = (e) => {
+		const eventValue = Number(e.target.value)
+    if (eventValue > CFR) {
+        P_SEVERE = eventValue
+    } else {
+      P_SEVERE = 0 // to force update
+      setTimeout(() => P_SEVERE = CFR, 0)
+    }
+	}
+	
+	const onChangeCFR = (e) => {
+		const eventValue = Number(e.target.value)
+		const change = eventValue - CFR
+		const newValue = P_SEVERE + change
+    const max = paramConfig["hospitalization_rate"].maxValue
+		
+		P_SEVERE = newValue < max ? newValue : max
+		CFR = eventValue
+	}
 
   function toggleZoomStates() {
     dt *= 2
@@ -157,10 +180,10 @@
     actionMarkers = actionMarkers // Trigger re-render
   }
 
-  function getlastHistoricBar(P_all_historical, dt) {
-    if (!P_all_historical) return 0
-    return get_every_nth(P_all_historical, dt).length - 1 // TODO optimize this to be more efficient
-  }
+  // function getlastHistoricBar(P_all_historical, dt) {
+  //   if (!P_all_historical) return 0
+  //   return get_every_nth(P_all_historical, dt).length - 1 // TODO optimize this to be more efficient
+  // }
 
   function with_enough_days(P, dt) {
     var augmented = []
@@ -251,12 +274,12 @@
     customScenarioStatus = '' // Clear out "Fetching..." message
     P_all_fetched = parse_berkeley(json["scenario_states"], json["scenario_params"], N)
     custom_params = {...json["scenario_params"], ...json["parameters"]}
-    actionMarkers = actionMarkerHelper(P_all_historical, custom_params)
+    actionMarkers = actionMarkerHelper(custom_params)
   }
 
   function get_solution(selectedModel, P_all_fetched, actionMarkers, goh_states_fin, dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR) {
     if (selectedModel === MODEL_GOH) {
-      return get_solution_from_gohs_seir_ode(actionMarkers[selectedModel], goh_states_fin, dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR)
+      return get_solution_from_gohs_seir_ode(actionMarkers[selectedModel], goh_states_fin, tmax, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR)
     } else if (selectedModel === MODEL_CUSTOM) {
       return P_all_fetched
     } else {
@@ -264,26 +287,26 @@
     }
   }
 
-  function actionMarkerHelper(P_all_historical, custom_params) {
+  function actionMarkerHelper(custom_params) {
     const m = actionMarkers || {}
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
-      m[MODEL_GOH] = goh_default_action_markers(P_all_historical)
+      m[MODEL_GOH] = goh_default_action_markers()
     } else {
       // Action markers for Goh have been set, but we may have to adjust them
       // in case historymarker has been moved to the right.
-      for (var i=0; i<m[MODEL_GOH].length; i++) {
-        const actionMarker = m[MODEL_GOH][i]
-        if (actionMarker[AM_DAY] < P_all_historical.length) {
-          actionMarker[AM_DAY] = P_all_historical.length
-        }
-      }
+      // for (var i=0; i<m[MODEL_GOH].length; i++) {
+      //   const actionMarker = m[MODEL_GOH][i]
+      //   if (actionMarker[AM_DAY] < P_all_historical.length) {
+      //     actionMarker[AM_DAY] = P_all_historical.length
+      //   }
+      // }
     }
-    if (custom_params['0']) {
-      m[MODEL_CUSTOM] = get_berkeley_action_markers(P_all_historical.length, custom_params)
-    } else if (!m[MODEL_CUSTOM]) {
-      m[MODEL_CUSTOM] = []
-    }
+    // if (custom_params['0']) {
+    //   m[MODEL_CUSTOM] = get_berkeley_action_markers(P_all_historical.length, custom_params)
+    // } else if (!m[MODEL_CUSTOM]) {
+    //   m[MODEL_CUSTOM] = []
+    // }
     return m
   }
   
@@ -293,21 +316,24 @@
 
   $: selectedModel    = customScenarioGUID ? MODEL_CUSTOM : MODEL_GOH
 
-  $: [firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing] = createHistoricalEstimates(hs_parsed, N, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR, undetected_infections, unrecorded_deaths)
-  $: firstBarDate     = firstHistoricalDate
+  // $: [firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing] = createHistoricalEstimates(hs_parsed, N, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR, undetected_infections, unrecorded_deaths)
 
-  $: lastHistoricDay       = P_all_historical_before_slicing.length-1
-  $: cutoffHistoricDay     = cutoffHistoricDay ? cutoffHistoricDay : lastHistoricDay+1
-  $: P_all_historical      = P_all_historical_before_slicing.slice(0, cutoffHistoricDay)
-  $: goh_states_fin        = goh_states_fin_before_slicing.slice(0, cutoffHistoricDay)
-  $: latestRtEstimateValue = Number.parseFloat(latestRtEstimate[0]["Rt"])
-  $: latestRtEstimateDate  = latestRtEstimate[0]["date"]
-  $: latestR0EstimateValue = get_R0_from_Rt(latestRtEstimateValue, goh_states_fin)
-  $: R0                    = R0 ? R0 : latestR0EstimateValue
-  $: setDefaultParamsR0(latestR0EstimateValue, latestRtEstimateDate)
-  $: lastHistoricBar       = getlastHistoricBar(P_all_historical, dt)
+  // $: firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing, console.log(firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing)
 
-  $: actionMarkers    = actionMarkerHelper(P_all_historical, custom_params)
+  // $: firstBarDate     = firstHistoricalDate 
+
+  // $: lastHistoricDay       = P_all_historical_before_slicing.length-1
+  // $: cutoffHistoricDay     = cutoffHistoricDay ? cutoffHistoricDay : lastHistoricDay+1
+  // $: P_all_historical      = P_all_historical_before_slicing.slice(0, cutoffHistoricDay)
+  $: goh_states_fin        = []
+  // $: latestRtEstimateValue = Number.parseFloat(latestRtEstimate[0]["Rt"])
+  // $: latestRtEstimateDate  = latestRtEstimate[0]["date"]
+  // $: latestR0EstimateValue = 4 // get_R0_from_Rt(latestRtEstimateValue, goh_states_fin)
+  $: R0                    = 2
+  // $: setDefaultParamsR0(latestR0EstimateValue, latestRtEstimateDate)
+  // $: lastHistoricBar       = getlastHistoricBar(P_all_historical, dt)
+
+  $: actionMarkers    = actionMarkerHelper(custom_params)
   $: stateMeta        = getDefaultStateMeta()
 
   $: P_all_future     = get_solution(
@@ -327,7 +353,8 @@
                           P_ICU,
                           CFR
                         )
-  $: P_all            = with_enough_days(P_all_historical.concat(P_all_future), dt)
+  // $: P_all            = with_enough_days(P_all_historical.concat(P_all_future), dt)
+  $: P_all            = with_enough_days(P_all_future, dt)
   $: P_bars           = get_every_nth(take_slice_from_beginning(P_all, dt), dt)
   $: timestep         = dt
   $: tmax             = dt*101
@@ -413,16 +440,16 @@
 
   window.addEventListener('mouseup', unlock_yaxis);
 
-  function activeHelper(active, lastHistoricBar) {
+  function activeHelper(active) {
     if (active >= 0) {
       // Case: User hovers over a bar or has locked a bar.
       return active
     }
-    return Math.min(lastHistoricBar, 100)
+    return Math.min(100)
   }
 
   $: active  = 0
-  $: active_ = activeHelper(active, lastHistoricBar)
+  $: active_ = activeHelper(active)
 
   var Tinc_s = "\\color{#CCC}{T^{-1}_{\\text{inc}}} "
   var Tinf_s = "\\color{#CCC}{T^{-1}_{\\text{inf}}}"
@@ -457,34 +484,34 @@
 
   $: [peakICUDay, peakICUCount] = get_icu_peak(P_all)
 
-  function get_milestones(P, firstBarDate, cutoffHistoricDay, dt) {
+  // function get_milestones(P, firstBarDate, cutoffHistoricDay, dt) {
 
-    var milestones = []
+  //   var milestones = []
     
-    // First death milestone
-    for (var i = 0; i < P.length; i+=1) {
-      if (P[i]['fatalities'] >= 0.5) {
-        milestones.push([i, "First death"])
-        break
-      }
-    }
+  //   // First death milestone
+  //   for (var i = 0; i < P.length; i+=1) {
+  //     if (P[i]['fatalities'] >= 0.5) {
+  //       milestones.push([i, "First death"])
+  //       break
+  //     }
+  //   }
     
-    // Peak ICU milestone
-    milestones.push([peakICUDay, "Peak: " + format(",")(peakICUCount) + " ICU"])
+  //   // Peak ICU milestone
+  //   milestones.push([peakICUDay, "Peak: " + format(",")(peakICUCount) + " ICU"])
 
-    // Historical date offset milestone
-    const lastHistoricDate = getDate(firstBarDate, cutoffHistoricDay-1)
-    milestones.push([cutoffHistoricDay-1, lastHistoricDate])
+  //   // Historical date offset milestone
+  //   const lastHistoricDate = getDate(firstBarDate, cutoffHistoricDay-1)
+  //   milestones.push([cutoffHistoricDay-1, lastHistoricDate])
 
-    // Filter out milestones which are outside the currently zoomed in area
-    milestones = milestones.filter(milestone => {
-      return milestone[0] < 100*dt
-    })
+  //   // Filter out milestones which are outside the currently zoomed in area
+  //   milestones = milestones.filter(milestone => {
+  //     return milestone[0] < 100*dt
+  //   })
 
-    return milestones
-  }
+  //   return milestones
+  // }
 
-  $: milestones = get_milestones(P_all, firstBarDate, cutoffHistoricDay, dt)
+  // $: milestones = get_milestones(P_all, firstBarDate, cutoffHistoricDay, dt)
   $: log = true
 
 </script>
@@ -715,18 +742,20 @@
 </style>
 
 
-<h2><div>
-  <span style="">Corosim</span>
-  <img style="vertical-align:middle" src="flag.png" title="Finland" alt="finnish flag" width="100">
-</div></h2>
-<h5>Historical Estimates & Model Predictions for COVID-19 in Finland</h5>
+<div>
+  <h2>
+  <span style="">Talus EPI Sim</span>
+  </h2>
+</div>
+
+<h5>SEIR Model with Hospitalizations</h5>
 
 <div class="mobileWarning">
   <h3>Sorry! This web app is not optimized for a mobile experience or small screens. If you can, please come back on a desktop device.</h3>
 </div>
 
-<div class="chart" style="display: flex; max-width: 1120px">
-  <div style="flex: 0 0 270px; width:270px;">
+<div class="chart" style="display: flex; max-width: 1200px">
+  <div style="flex: 0 0 300px; width:300px;">
     <div style="height: 50px;">
       
       <!-- Deprecated scenario dropdown selector. -->
@@ -751,7 +780,6 @@
         P_bars = {P_bars}
         active_ = {active_}
         indexToTime = {indexToTime}
-        firstBarDate = {firstBarDate}
         peakICUDay = {peakICUDay}
         peakICUCount = {peakICUCount}
       />
@@ -802,7 +830,6 @@
         selectedModel={selectedModel}
         icuCapacity={icuCapacity}
         log={!log}
-        firstBarDate = {firstBarDate}
         />
 
       <!-- Buttons on thee right side of chart: zoom and add. -->
@@ -840,7 +867,7 @@
     </div>
 
     <!-- History Marker. -->
-    {#if cutoffHistoricDay < tmax}
+    <!-- {#if cutoffHistoricDay < tmax}
       <HistoryMarker
         width = {width}
         height = {height}
@@ -854,7 +881,7 @@
         bind:lock_yaxis = {lock_yaxis}
         bind:flashMessage = {flashMessage}
       />
-    {/if}
+    {/if} -->
 
     <!-- Action Markers. -->
     {#each actionMarkers[selectedModel] as actionMarkerData}
@@ -865,8 +892,6 @@
           R0 = {R0}
           tmax = {tmax}
           Pmax = {Pmax}
-          P_all_historical = {P_all_historical}
-          firstBarDate = {firstBarDate}
           bind:allActiveActionMarkers = {actionMarkers[selectedModel]}
           bind:actionMarkerData = {actionMarkerData}
           bind:Plock = {Plock}
@@ -878,7 +903,7 @@
     {/each}
 
     <!-- Milestones -->
-    <div style="pointer-events: none;
+    <!-- <div style="pointer-events: none;
                 position: absolute;
                 top:{height+84}px;
                 left:{0}px;
@@ -892,7 +917,7 @@
                 <div class="tick" style="position: relative; left: 0px; top: 35px; max-width: 130px; color: #BBB; background-color: white; padding-left: 4px; padding-right: 4px">{@html milestone[1]}</div>
             </div>
           {/each}
-    </div>
+    </div> -->
 
    </div>
 
@@ -937,15 +962,18 @@
   <div class="row">
 
     {#if selectedModel === MODEL_GOH}
-
+      <div class="column">
+        <ParameterKnob p = {paramConfig["population"]} bind:value = {N} bind:popupHTML = {popupHTML} />
+        <ParameterKnob p = {paramConfig["initial_infections"]} bind:value = {I0} bind:popupHTML = {popupHTML} />
+      </div>
       <div class="column" style="margin-left: 0;">
         <ParameterKnob p = {paramConfigR0} bind:value = {R0} bind:popupHTML = {popupHTML} />
         <div class="paneltext paneldesc"><i>Please note that R0 is affected by action markers (those vertical things on the chart).</i></div>
       </div>
-      <div class="column">
+      <!-- <div class="column">
         <ParameterKnob p = {paramConfig["undetected_infections"]} bind:value = {undetected_infections} bind:popupHTML = {popupHTML} />
         <ParameterKnob p = {paramConfig["unrecorded_deaths"]} bind:value = {unrecorded_deaths} bind:popupHTML = {popupHTML} />
-      </div>
+      </div> -->
       <div class="column">
         <ParameterKnob p = {paramConfig["days_from_incubation_to_infectious"]} bind:value = {D_incbation} bind:popupHTML = {popupHTML} />
         <ParameterKnob p = {paramConfig["days_from_infectious_to_not_infectious"]} bind:value = {D_infectious} bind:popupHTML = {popupHTML} />
@@ -955,8 +983,8 @@
         <ParameterKnob p = {paramConfig["days_in_mild_recovering_state"]} bind:value = {D_recovery_mild} bind:popupHTML = {popupHTML} />
       </div>
       <div class="column">
-        <ParameterKnob p = {paramConfig["hospitalization_rate"]} bind:value = {P_SEVERE} specialCaseAddToDisplayValue = {CFR} bind:popupHTML = {popupHTML} />
-        <ParameterKnob p = {paramConfig["fatality_rate"]} bind:value = {CFR} bind:popupHTML = {popupHTML} />
+        <ParameterKnob p = {paramConfig["hospitalization_rate"]} onChange = {onChange_P_SEVERE} value = {P_SEVERE} bind:popupHTML = {popupHTML} />
+        <ParameterKnob p = {paramConfig["fatality_rate"]} onChange = {onChangeCFR} value = {CFR} bind:popupHTML = {popupHTML} />
       </div>
       <div class="column">
         <ParameterKnob p = {paramConfig["icu_rate_from_hospitalized"]} bind:value = {P_ICU} bind:popupHTML = {popupHTML} />
@@ -974,7 +1002,7 @@
   </div>
 </div>
 
-{#if selectedModel === MODEL_GOH}
+<!-- {#if selectedModel === MODEL_GOH}
 
   <Collapsible title="Introduction" bind:collapsed={collapsed} defaultCollapsed={false}>
     <div>
@@ -1129,4 +1157,4 @@
     </div>
   </Collapsible>
 
-{/if}
+{/if} -->

@@ -8,11 +8,16 @@
     export let p;
     export let value;
     export let popupHTML;
+    export let onChange = null;
 
     export let specialCaseAddToDisplayValue = 0;
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
     
     $: displayValue = value + specialCaseAddToDisplayValue
-    $: valueFormatted = p.isInteger ? displayValue : (p.isPercentage ? (100*displayValue).toFixed(2) : displayValue.toFixed(2))
+    $: valueFormatted = p.isInteger ? numberWithCommas(displayValue) : (p.isPercentage ? (100*displayValue).toFixed(2) : displayValue.toFixed(2))
 
     function f(chapterTitle, chapterText) {
         if (chapterTitle === '' || chapterText === '') {
@@ -27,6 +32,8 @@
                      ${f("Effects", p.longformEffects)}
                      ${f("Justification for default value", p.longformDefaultValueJustification)}`
     }
+
+    // $: value, console.log(`slider ${p.description} value: ${value}`)
 
 </script>
 
@@ -119,4 +126,9 @@
 <div class="slidertext">
     {valueFormatted} {p.unitsDescriptor}
 </div>
-<input class="range" type=range bind:value={value} min={p.minValue} max={p.maxValue} step={p.stepValue}>
+
+{#if onChange}
+    <input class="range" type=range on:change={onChange} value = {value} min={p.minValue} max={p.maxValue} step={p.stepValue}>
+{:else}
+    <input class="range" type=range on:change={onChange} bind:value = {value} min={p.minValue} max={p.maxValue} step={p.stepValue}>
+{/if}

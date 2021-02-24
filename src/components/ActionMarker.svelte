@@ -23,9 +23,9 @@
     export let Plock;
     export let lock;
     export let lock_yaxis;
-    export let P_all_historical;
+    // export let P_all_historical;
     export let flashMessage;
-    export let firstBarDate;
+    // export let firstBarDate;
 
     function toggleConfig() {
         actionMarkerData[AM_EXPANDED] = !actionMarkerData[AM_EXPANDED]
@@ -44,7 +44,7 @@
         return adjustedR0
     }
 
-    function getLeftPx(actionMarkerData, P_all_historical, tmax) {
+    function getLeftPx(actionMarkerData, tmax) {
         // Note: tmax must be in parameters to trigger re-render correctly.
         return xScaleTime(actionMarkerData[AM_DAY])
     }
@@ -65,7 +65,8 @@
 
     $: zIndex = getZIndex(actionMarkerData)
     $: displayDay = actionMarkerData[AM_DAY]
-    $: displayDate = getDate(firstBarDate, displayDay)
+    // $: displayDate = getDate(firstBarDate, displayDay)
+    $: displayDate = displayDay
     $: adjustedR0 = getAdjustedR0(R0, allActiveActionMarkers, actionMarkerData)
     $: InterventionAmt = 1 - actionMarkerData[AM_EFFECT]
     $: xScaleTime = scaleLinear()
@@ -74,7 +75,7 @@
     $: xScaleTimeInv = scaleLinear()
                         .domain([0, width])
                         .range([0, tmax]);
-    $: leftPx = getLeftPx(actionMarkerData, P_all_historical, tmax)
+    $: leftPx = getLeftPx(actionMarkerData, tmax)
 
     var drag_intervention = function (){
         var dragstarty = 0
@@ -90,7 +91,7 @@
         var dragged = function (d) {
             if (actionMarkerData.isConfigurable()) {
                 const draggedX = InterventionTimeStart + xScaleTimeInv(event.x - dragstarty)
-                const minX = P_all_historical.length
+                const minX = 0
                 const maxX = tmax-1
                 if (draggedX < minX-3) {
                     flashMessage = 'Action markers affect model predictions, not historical estimates.'

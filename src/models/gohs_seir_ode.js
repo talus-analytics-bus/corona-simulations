@@ -26,13 +26,27 @@ var integrate=(m,f,y,t,h)=>{
     return r;
 }
 
-export function get_solution_from_gohs_seir_ode(actionMarkersForGoh, historical_goh_states, real_dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR) {
+export function get_solution_from_gohs_seir_ode(
+    actionMarkersForGoh, 
+    historical_goh_states, 
+    real_dt, 
+    N, 
+    I0, 
+    R0, 
+    D_incbation, 
+    D_infectious, 
+    D_recovery_mild, 
+    D_hospital, 
+    P_SEVERE, 
+    P_ICU, 
+    CFR
+  ) {
 
     // This used to be a slider in the original Epidemic Calculator.
     const D_death = D_hospital
 
     var interpolation_steps = 40
-    var days_to_simulate = 800
+    var days_to_simulate = 810
     var steps = 101*interpolation_steps*days_to_simulate/100
     var dt = 1/interpolation_steps
     var sample_step = interpolation_steps
@@ -88,10 +102,10 @@ export function get_solution_from_gohs_seir_ode(actionMarkersForGoh, historical_
     }
 
     // If historical data is available, we take the last historical state as our start state.
-    var v =
-        historical_goh_states ?
-        v = historical_goh_states[historical_goh_states.length - 1] :
-        [1 - I0/N, 0, I0/N, 0, 0, 0, 0, 0, 0, 0]
+    var v = [1 - I0/N, 0, I0/N, 0, 0, 0, 0, 0, 0, 0]
+        // historical_goh_states ?
+        // v = historical_goh_states[historical_goh_states.length - 1] :
+        // [1 - I0/N, 0, I0/N, 0, 0, 0, 0, 0, 0, 0]
 
     var t = 0
     var goh_states = []
@@ -166,12 +180,13 @@ export function map_goh_states_into_UFStates(goh_states, N, P_ICU) {
     })
 }
 
-export function goh_default_action_markers(P_all_historical) {
+export function goh_default_action_markers() {
     return [
         new ActionMarkerData(380, "Cold weather", 0.1),
         new ActionMarkerData(450, "Test", -0.3),
-    ].filter(am => {
-        // Prevent action markers from falling behind the historical marker
-        return am.day > P_all_historical.length
-    })
+    ]
+    // .filter(am => {
+    //     // Prevent action markers from falling behind the historical marker
+    //     return am.day > P_all_historical.length
+    // })
 }

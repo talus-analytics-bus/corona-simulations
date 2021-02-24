@@ -26,7 +26,7 @@
   export let log = false;
   export let selectedModel;
   export let icuCapacity;
-  export let firstBarDate;
+  // export let firstBarDate;
 
   function shouldWeDrawICUcapacity(selectedModel, stateMeta, ymax) {
     // Note that we need stateMeta and ymax as parameters in order to trigger re-render on certain user actions.
@@ -132,7 +132,9 @@
 
   // This is used to align the names of months on the axis to be roughly at center of those months.
   // If you tune this, remember to use different zoom settings during testing.
-  $: xLabelOffset = Number.parseInt(getDayFromDate(firstBarDate)) - 18
+  // $: xLabelOffset = Number.parseInt(getDayFromDate(firstBarDate)) - 18
+  $: xLabelOffset = 0
+
 
 </script>
 
@@ -246,7 +248,10 @@
         -->
 
         {#if i%30 == 0}
-          {#if getDate(firstBarDate, i).endsWith("01.2021")}
+        <g class="tick" transform="translate({xScaleTime(i - xLabelOffset)},{height})">
+          <text x="0" y="-4">{i}</text>
+        </g>
+          <!-- {#if getDate(firstBarDate, i).endsWith("01.2021")}
             <g class="tick" transform="translate({xScaleTime(i - xLabelOffset)},{height})">
               <text x="0" y="-4">2021</text>
             </g>
@@ -254,7 +259,7 @@
             <g class="tick" transform="translate({xScaleTime(i - (i > 0 ? xLabelOffset : 0))},{height})">
               <text x="0" y="-4">{getMonth(addDays(firstBarDate, i))}</text>
             </g>
-          {/if}
+          {/if} -->
         {/if}
         
       {/each}
