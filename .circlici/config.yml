@@ -1,0 +1,63 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
+
+jobs:
+  deploy:
+    working_directory: ~/repo
+
+    docker:
+      - image: cimg/node:14.4
+
+    steps:
+      - checkout
+
+      - run:
+          name: Installing Deployment Dependencies
+          working_directory: /
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get install convmv
+            sudo apt-get -y install python3-pip python3-dev g++ build-essential
+            pip3 install --upgrade pip
+            sudo apt-get remove python-pip
+            pip3 install --upgrade setuptools pytz
+            pip3 install awsebcli==3.10.0
+            pip3 install boto3
+
+      - aws-cli/install
+      - aws-cli/configure
+
+      - run:
+          name: npm install
+          command: npm install --network-timeout 1000000
+      - run:
+          name: npm run build
+          command: yarn build
+
+      - run:
+          name: deploy
+          command: aws s3 sync public/ s3://epi-sim/ --delete
+
+      - run:
+          name: Notify Slack
+          command: |
+            curl -X POST -H 'Content-type: application/json' --data '{"text":"http://epi-sim.s3-website-us-west-1.amazonaws.com/"}' \
+            https://hooks.slack.com/services/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
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
+
+      - deploy:
+          filters:
+            branches:
+              only:
+                - dev
