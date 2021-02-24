@@ -6,7 +6,6 @@
   import { selectAll } from 'd3-selection'
   import { drag } from 'd3-drag';
   import queryString from "query-string";
-  // import { format } from 'd3-format';
   import { event } from 'd3-selection';
   import Icon from 'svelte-awesome';
   import { search, plus, exclamationCircle, times } from 'svelte-awesome/icons';
@@ -15,9 +14,6 @@
   // Custom Svelte components
   import Chart from './components/Chart.svelte';
   import ChartCompanion from './components/ChartCompanion.svelte';
-  // import Checkbox from './components/Checkbox.svelte';
-  // import Arrow from './components/Arrow.svelte';
-  // import HistoryMarker from './components/HistoryMarker.svelte';
   import ActionMarker from './components/ActionMarker.svelte';
   import ParameterKnob from './components/ParameterKnob.svelte';
   // import Collapsible from './components/Collapsible.svelte';
@@ -26,26 +22,11 @@
   import { ActionMarkerData, AM_DAY } from './action_marker_data.js';
   import { UFState, getDefaultStateMeta } from './user_facing_states.js';
   import { get_solution_from_gohs_seir_ode, goh_default_action_markers } from './models/gohs_seir_ode.js';
-  // import { map_berkeley_states_into_UFStates, parse_berkeley, get_berkeley_action_markers } from './models/berkeley_abm.js';
-  // import { createHistoricalEstimates } from './models/historical_estimates.js';
-  // import { getDate, addDays, formatCount, formatDelta, MODEL_GOH, MODEL_CUSTOM, stylizeExpressions } from './utils.js';
   import { MODEL_GOH, MODEL_CUSTOM } from './utils.js';
-  // import { math_inline, math_display, padding } from './utils.js';
   import { math_inline } from './utils.js';
 
   // Static data imports
   import paramConfig from './paramConfig.json';
-  // import hs_parsed from '../data/hs_parsed.json';
-  // import latestRtEstimate from './../data/latest_Rt.csv';
-
-  // function range(n){
-  //   return Array(n).fill().map((_, i) => i);
-  // }
-
-  // function get_R0_from_Rt(Rt, goh_states_fin) {
-  //   const prop_susceptible = goh_states_fin[goh_states_fin.length-1][0]
-  //   return parseFloat((Rt / prop_susceptible).toFixed(2))
-  // }
 
   // Motivation: when we zoom out, Chart needs every nth datapoint from P.
   function get_every_nth(P, n) {
@@ -56,15 +37,9 @@
     return arr
   }
 
-  // function replaceFuturiceFromTextWithLogo(text) {
-  //   return text.replace('Futurice', '<img alt="Futurice" style="vertical-align:middle; padding: 0px 5px 5px 5px;" width="80" src="futurice.png">')
-  // }
-
   let collapsed = {}
 
   let display_scenario_dropdown = false
-  // let custom_scenario_url_prefix = 'https://coronastoragemyvs.blob.core.windows.net/coviducb/'
-  // let custom_scenario_url_postfix = '-outcome_1.json'
 
   // let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
 
@@ -129,11 +104,7 @@
 
 
   $: N                 = paramConfig['population'].defaultValue
-  // $: logN              = Math.log(N)
-  // $: I0                = 1
   $: I0                 = paramConfig['initial_infections'].defaultValue
-  // $: undetected_infections = paramConfig["undetected_infections"].defaultValue
-  // $: unrecorded_deaths = paramConfig["unrecorded_deaths"].defaultValue
   $: D_incbation       = paramConfig["days_from_incubation_to_infectious"].defaultValue
   $: D_infectious      = paramConfig["days_from_infectious_to_not_infectious"].defaultValue
   $: D_recovery_mild   = paramConfig["days_in_mild_recovering_state"].defaultValue
@@ -181,11 +152,6 @@
     actionMarkers[selectedModel].push(new ActionMarkerData(99*dt, undefined, -0.1, true))
     actionMarkers = actionMarkers // Trigger re-render
   }
-
-  // function getlastHistoricBar(P_all_historical, dt) {
-  //   if (!P_all_historical) return 0
-  //   return get_every_nth(P_all_historical, dt).length - 1 // TODO optimize this to be more efficient
-  // }
 
   function with_enough_days(P, dt) {
     var augmented = []
@@ -242,43 +208,6 @@
     }
   }
 
-  // function fetchCustomScenarioAsync() {
-  //   customScenarioStatus = 'Fetching data...'
-  //   const url = custom_scenario_url_prefix + customScenarioGUID + custom_scenario_url_postfix
-  //   fetch(url, { 
-  //     method: 'GET'
-  //   })
-  //   .then((response) => {
-  //     if (!response.ok) {
-  //       showUserError(response)
-  //     }
-  //     return response
-  //   })
-  //   .then(function(response) {
-  //     return response.json();
-  //   })
-  //   .then(function(json) {
-  //     parseCustomScenario(json)
-  //   })
-  //   .catch(error => {
-  //     showUserError(error)
-  //   });
-  // }
-
-  let customScenarioStatus = ''
-
-  function showUserError(thing) {
-    customScenarioStatus = 'Error fetching scenario'
-    console.log(thing)
-  }
-
-  // function parseCustomScenario(json) {
-  //   customScenarioStatus = '' // Clear out "Fetching..." message
-  //   P_all_fetched = parse_berkeley(json["scenario_states"], json["scenario_params"], N)
-  //   custom_params = {...json["scenario_params"], ...json["parameters"]}
-  //   actionMarkers = actionMarkerHelper(custom_params)
-  // }
-
   function get_solution(selectedModel, P_all_fetched, actionMarkers, goh_states_fin, dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR) {
     if (selectedModel === MODEL_GOH) {
       return get_solution_from_gohs_seir_ode(actionMarkers[selectedModel], goh_states_fin, tmax, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR)
@@ -289,53 +218,24 @@
     }
   }
 
-  function actionMarkerHelper(custom_params) {
+  function actionMarkerHelper() {
     const m = actionMarkers || {}
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
       m[MODEL_GOH] = goh_default_action_markers()
-    } else {
-      // Action markers for Goh have been set, but we may have to adjust them
-      // in case historymarker has been moved to the right.
-      // for (var i=0; i<m[MODEL_GOH].length; i++) {
-      //   const actionMarker = m[MODEL_GOH][i]
-      //   if (actionMarker[AM_DAY] < P_all_historical.length) {
-      //     actionMarker[AM_DAY] = P_all_historical.length
-      //   }
-      // }
     }
-    // if (custom_params['0']) {
-    //   m[MODEL_CUSTOM] = get_berkeley_action_markers(P_all_historical.length, custom_params)
-    // } else if (!m[MODEL_CUSTOM]) {
-    //   m[MODEL_CUSTOM] = []
-    // }
     return m
   }
   
   let customScenarioGUID   = queryString.parse(location.search).customScenario
-  let P_all_fetched   = [] // For "Custom scenario": empty array until we get data.
-  let custom_params   = {} // Empty "parameters object" as placeholder until we get data.
+  let P_all_fetched        = [] // For "Custom scenario": empty array until we get data.
 
-  $: selectedModel    = customScenarioGUID ? MODEL_CUSTOM : MODEL_GOH
-
-  // $: [firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing] = createHistoricalEstimates(hs_parsed, N, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR, undetected_infections, unrecorded_deaths)
-
-  // $: firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing, console.log(firstHistoricalDate, goh_states_fin_before_slicing, P_all_historical_before_slicing)
-
-  // $: firstBarDate     = firstHistoricalDate 
-
-  // $: lastHistoricDay       = P_all_historical_before_slicing.length-1
-  // $: cutoffHistoricDay     = cutoffHistoricDay ? cutoffHistoricDay : lastHistoricDay+1
-  // $: P_all_historical      = P_all_historical_before_slicing.slice(0, cutoffHistoricDay)
+  $: selectedModel         = customScenarioGUID ? MODEL_CUSTOM : MODEL_GOH
   $: goh_states_fin        = []
-  // $: latestRtEstimateValue = Number.parseFloat(latestRtEstimate[0]["Rt"])
-  // $: latestRtEstimateDate  = latestRtEstimate[0]["date"]
-  // $: latestR0EstimateValue = 4 // get_R0_from_Rt(latestRtEstimateValue, goh_states_fin)
   $: R0                    = 2
-  // $: setDefaultParamsR0(latestR0EstimateValue, latestRtEstimateDate)
-  // $: lastHistoricBar       = getlastHistoricBar(P_all_historical, dt)
 
-  $: actionMarkers    = actionMarkerHelper(custom_params)
+
+  $: actionMarkers    = actionMarkerHelper()
   $: stateMeta        = getDefaultStateMeta()
 
   $: P_all_future     = get_solution(
@@ -428,14 +328,6 @@
   let height = 400;
   
 
-  // $: xScaleTime = scaleLinear()
-  //   .domain([0, tmax])
-  //   .range([padding.left, width - padding.right]);
-
-  // $: xScaleTimeInv = scaleLinear()
-  //   .domain([0, width])
-  //   .range([0, tmax]);
-
   $: indexToTime = scaleLinear()
     .domain([0, P_bars.length])
     .range([0, tmax])
@@ -485,35 +377,6 @@
   }
 
   $: [peakICUDay, peakICUCount] = get_icu_peak(P_all)
-
-  // function get_milestones(P, firstBarDate, cutoffHistoricDay, dt) {
-
-  //   var milestones = []
-    
-  //   // First death milestone
-  //   for (var i = 0; i < P.length; i+=1) {
-  //     if (P[i]['fatalities'] >= 0.5) {
-  //       milestones.push([i, "First death"])
-  //       break
-  //     }
-  //   }
-    
-  //   // Peak ICU milestone
-  //   milestones.push([peakICUDay, "Peak: " + format(",")(peakICUCount) + " ICU"])
-
-  //   // Historical date offset milestone
-  //   const lastHistoricDate = getDate(firstBarDate, cutoffHistoricDay-1)
-  //   milestones.push([cutoffHistoricDay-1, lastHistoricDate])
-
-  //   // Filter out milestones which are outside the currently zoomed in area
-  //   milestones = milestones.filter(milestone => {
-  //     return milestone[0] < 100*dt
-  //   })
-
-  //   return milestones
-  // }
-
-  // $: milestones = get_milestones(P_all, firstBarDate, cutoffHistoricDay, dt)
   $: log = true
 
 </script>
@@ -521,17 +384,6 @@
 <link rel="stylesheet" href="katex.css">
 
 <style>
-  /* .small { font: italic 6px Source Code Pro; }
-  @font-face {
-    font-family: 'Source Code Pro';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: local('Source Code Pro Regular'), local('SourceCodePro-Regular'), url(fonts/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevW.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  } */
-
-  
   @font-face {
     font-family: 'Liberation Sans';
     font-style: normal;
@@ -601,15 +453,6 @@
     line-height: 24px
   }
 
-  /* .ack {
-    margin: auto;
-    width: 950px;
-    padding-bottom: 20px;
-    font-weight: 300;
-    color:#333;
-    font-size: 13px;
-  } */
-
   .row {
     margin: auto;
     display: flex;
@@ -621,54 +464,18 @@
     flex: 158px;
     padding: 0px 5px 5px 0px;
     margin: 0px 5px 5px 5px;
-    /*border-top: 2px solid #999*/
   }
-
-  /* .minorTitle {
-    margin: auto;
-    display: flex;
-    width: 950px;
-    font-size: 17px;
-    color: #666;
-  }
-
-  .minorTitleColumn{
-    flex: 60px;
-    padding: 3px;
-    border-bottom: 2px solid #999;
-  } */
-
 
   .paneltext{
     position:relative;
   }
-/* 
-  .paneltitle{
-    color:#777; 
-    line-height: 17px; 
-    padding-bottom: 4px;
-    font-weight: 700;
-  } */
+
 
   .paneldesc{
     color:#888; 
     text-align: left;
     font-weight: 300;
   }
-
-  /* .slidertext{
-    color:#555; 
-    line-height: 7px; 
-    padding-bottom: 0px; 
-    padding-top: 7px;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 10px;
-    text-align: right;
-  } */
-    
-  /* .range {
-    width: 100%;
-  } */
 
   .chart {
     width: 100%;
@@ -685,35 +492,6 @@
     font-weight: 300;
     line-height: 14px;
   }
-
-  /* .tick {
-    font-size: .725em;
-    font-weight: 200;
-    font-size: 13px
-  } */
-
-  /* td { 
-    text-align: left;
-    border-bottom: 1px solid #DDD;
-    border-collapse: collapse;
-    padding: 3px;
-  } */
-
-  /* tr {
-    border-collapse: collapse;
-    border-spacing: 15px;
-  } */
-
-  /* .eqn {
-    margin: auto;
-    display: flex;
-    flex-flow: row wrap;
-    width: 950px;
-    column-count: 4;
-    font-weight: 300;
-    color:#666;
-    font-size: 16.5px;
-  } */
 
   :global(.clickableIcons:hover) {
     cursor: pointer;
@@ -733,12 +511,6 @@
         position: absolute;
       }
   }
-
-  /* th { font-weight: 500; text-align: left; padding-bottom: 5px; vertical-align: text-top;     border-bottom: 1px solid #DDD; }
-
-  a:link { color: grey; }
-  a:visited { color: grey; } */
-
 </style>
 
 
@@ -811,13 +583,6 @@
 
     <div style="position:relative; top:60px; left: 10px" >
 
-      <!-- Big overlay text about "fetching" or "error" when dealing with custom scenarios. -->
-      {#if selectedModel === MODEL_CUSTOM && customScenarioStatus !== ''}
-        <div style="position: absolute; top: 100px; left: 100px; font-size: 40px;">
-          {customScenarioStatus}
-        </div>
-      {/if}
-
       <!-- The actual chart with bars and stuff. -->
       <Chart bind:active={active}
         states = {P_bars} 
@@ -866,23 +631,6 @@
                 height:425px;">
     </div>
 
-    <!-- History Marker. -->
-    <!-- {#if cutoffHistoricDay < tmax}
-      <HistoryMarker
-        width = {width}
-        height = {height}
-        R0 = {R0}
-        tmax = {tmax}
-        Pmax = {Pmax}
-        lastHistoricDay = {lastHistoricDay}
-        bind:cutoffHistoricDay = {cutoffHistoricDay}
-        bind:Plock = {Plock}
-        bind:lock = {lock}
-        bind:lock_yaxis = {lock_yaxis}
-        bind:flashMessage = {flashMessage}
-      />
-    {/if} -->
-
     <!-- Action Markers. -->
     {#each actionMarkers[selectedModel] as actionMarkerData}
       {#if actionMarkerData[AM_DAY] < tmax}
@@ -901,23 +649,6 @@
         />
       {/if}
     {/each}
-
-    <!-- Milestones -->
-    <!-- <div style="pointer-events: none;
-                position: absolute;
-                top:{height+84}px;
-                left:{0}px;
-                width:{780}px;
-                opacity: 1.0;
-                height:25px;
-                cursor:col-resize">
-          {#each milestones as milestone}
-            <div style="position:absolute; left: {xScaleTime(milestone[0])+8}px; top: -30px;">
-              <span style="opacity: 0.3"><Arrow height=30 arrowhead="#circle" dasharray = "2 1"/></span>
-                <div class="tick" style="position: relative; left: 0px; top: 35px; max-width: 130px; color: #BBB; background-color: white; padding-left: 4px; padding-right: 4px">{@html milestone[1]}</div>
-            </div>
-          {/each}
-    </div> -->
 
    </div>
 </div>
@@ -968,10 +699,6 @@
         <ParameterKnob p = {paramConfigR0} bind:value = {R0} bind:popupHTML = {popupHTML} />
         <div class="paneltext paneldesc"><i>Please note that R0 is affected by action markers (those vertical things on the chart).</i></div>
       </div>
-      <!-- <div class="column">
-        <ParameterKnob p = {paramConfig["undetected_infections"]} bind:value = {undetected_infections} bind:popupHTML = {popupHTML} />
-        <ParameterKnob p = {paramConfig["unrecorded_deaths"]} bind:value = {unrecorded_deaths} bind:popupHTML = {popupHTML} />
-      </div> -->
       <div class="column">
         <ParameterKnob p = {paramConfig["days_from_incubation_to_infectious"]} bind:value = {D_incbation} bind:popupHTML = {popupHTML} />
         <ParameterKnob p = {paramConfig["days_from_infectious_to_not_infectious"]} bind:value = {D_infectious} bind:popupHTML = {popupHTML} />
@@ -989,12 +716,6 @@
         <ParameterKnob p = {paramConfig["icu_capacity"]} bind:value = {icuCapacity} bind:popupHTML = {popupHTML} />
       </div>
 
-    {/if}
-
-    {#if selectedModel !== MODEL_GOH}
-      <div>
-        <p style="white-space: pre-wrap; color: #777; line-height: 17px;">{@html JSON.stringify(custom_params, null, 4)}</p>
-      </div>
     {/if}
 
   </div>
