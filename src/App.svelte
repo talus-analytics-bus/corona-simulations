@@ -61,10 +61,10 @@
   let collapsed = {}
 
   let display_scenario_dropdown = false
-  let custom_scenario_url_prefix = 'https://coronastoragemyvs.blob.core.windows.net/coviducb/'
-  let custom_scenario_url_postfix = '-outcome_1.json'
+  // let custom_scenario_url_prefix = 'https://coronastoragemyvs.blob.core.windows.net/coviducb/'
+  // let custom_scenario_url_postfix = '-outcome_1.json'
 
-  let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
+  // let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
 
   // R0 paramConfig is stored at a separate object because its default value is updated by a reactive function.
   // Do not refactor into paramConfig.
