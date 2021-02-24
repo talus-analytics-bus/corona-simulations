@@ -45,76 +45,17 @@
 
   // let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
 
-  // R0 paramConfig is stored at a separate object because its default value is updated by a reactive function.
-  // Do not refactor into paramConfig.
-  let paramConfigR0 = {
-    description: `Basic Reproduction Number {R0} (initially)`,
-    isDefaultValueAutomaticallyGeneratedFromData: false,
-    defaultValue: 2, // Will be overwritten by a reactive function. // yeah but with the same value now!
-    minValue: 0.01,
-    maxValue: 5,
-    stepValue: 0.01,
-    unitsDescriptor: "",
-    isInteger: false,
-    isPercentage: false,
-    longformDescription: `Informally, {R0} describes how easily a virus can spread in a population.
-                          Note that {R0} is not just a property of the virus: the behavior of individuals
-                          within a population also affects how easily a virus can spread. To be specific,
-                          {R0} describes the number of new infections expected to be caused by a typical infected
-                          person within a population <i>where everyone is susceptible to the disease</i>.
-                          For example, if ${math_inline(
-                            "\\mathcal{R}_0=2"
-                          )}, then one infected person
-                          would be expected to infect 2 other people (on average, if everyone in the
-                          population was susceptible).`,
-    longformDoNotConfuseWith: `{Rt}, the <i>effective</i> reproduction number, describes the same thing,
-                               except for the assumption regarding susceptible population. {Rt} describes
-                               how many new infections are <i>effectively</i> caused by a typical infected
-                               person within a population (without assuming that everyone is susceptible to
-                               the disease). In the beginning of the epidemic, both {Rt} and {R0} are
-                               very close to each other. However, as more and more people have had the disease,
-                               they have (presumably) developed an immunity towards it. This makes it increasingly
-                               harder for the virus to spread, causing {Rt} to diverge lower from {R0}.
-                               `,
-    longformEffects: "",
-    longformDefaultValueJustification: `The default value for {R0} is estimated from 7 days of confirmed case counts.
-                                        This default value is not hardcoded, it is updated daily as new data comes in.
-                                        Because of delays in recording new cases, we do not use the most recent 7 days:
-                                        we exclude the most recent 5 days and then take the next 7 days.<br>
-                                        
-                                        <img src="latest_Rt.png" alt="Rt estimates over time" title="Rt estimates over time"/><br>
-
-                                        There are many methods to estimate reproduction numbers from data. We use a Bayesian
-                                        approach described by <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0002185">Bettencourt
-                                        & Ribeiro</a> in their 2008 paper "Real Time Bayesian Estimation of the Epidemic Potential
-                                        of Emerging Infectious Diseases"</a>, which was
-                                        <a href="http://systrom.com/blog/the-metric-we-need-to-manage-covid-19/">adapted and modified</a>
-                                        for the COVID-19 epidemic by Kevin Systrom. This method gives us an estimate of {Rt},
-                                        which we convert to {R0} by considering our estimate of the proportion of susceptible population p:
-                                        <br><br>
-                                        ${math_inline(
-                                          "\\mathcal{R}_t = \\mathcal{R}_0 * p"
-                                        )}
-                                        
-                                        <br><br>
-                                        If you would like to double-check our computations on Finnish data, see
-                                        <a href="https://github.com/futurice/covid-19-R_t-estimating/blob/master/finland.ipynb">this notebook</a>.
-                                        
-                                        `,
-  };
-
-  function setDefaultParamsR0(latestR0EstimateValue, latestRtEstimateDate) {
-    paramConfigR0.defaultValue = latestR0EstimateValue;
-  }
-
   $: N = paramConfig["population"].defaultValue;
   $: I0 = paramConfig["initial_infections"].defaultValue;
   $: D_incbation =
     paramConfig["days_from_incubation_to_infectious"].defaultValue;
+
   $: D_infectious =
     paramConfig["days_from_infectious_to_not_infectious"].defaultValue;
+
   $: D_recovery_mild =
     paramConfig["days_in_mild_recovering_state"].defaultValue;
+
   $: D_hospital = paramConfig["days_in_hospital"].defaultValue;
   $: CFR = paramConfig["fatality_rate"].defaultValue;
   $: Time = 220;
@@ -650,7 +591,7 @@
         />
       </div>
       <div class="column" style="margin-left: 0;">
-        <ParameterKnob p={paramConfigR0} bind:value={R0} bind:popupHTML />
+        <ParameterKnob p={paramConfig["R0"]} bind:value={R0} bind:popupHTML />
         <div class="paneltext paneldesc">
           <i
             >Please note that R0 is affected by action markers (those vertical

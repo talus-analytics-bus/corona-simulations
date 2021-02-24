@@ -1,4 +1,19 @@
 {
+    "R0": {
+        "description": "Basic Reproduction Number {R0}",
+        "isDefaultValueAutomaticallyGeneratedFromData": false,
+        "defaultValue": 2,
+        "minValue": 0.01,
+        "maxValue": 5,
+        "stepValue": 0.01,
+        "unitsDescriptor": "",
+        "isInteger": false,
+        "isPercentage": false,
+        "longformDescription": "Informally, {R0} describes how easily a virus can spread in a population. Note that {R0} is not just a property of the virus: the behavior of individuals within a population also affects how easily a virus can spread. To be specific, {R0} describes the number of new infections expected to be caused by a typical infected person within a population <i>where everyone is susceptible to the disease</i>. For example, if ${math_inline('\\mathcal{R}_0=2')}, then one infected person would be expected to infect 2 other people (on average, if everyone in the population was susceptible).",
+        "longformDoNotConfuseWith": "{Rt}, the <i>effective</i> reproduction number, describes the same thing, except for the assumption regarding susceptible population. {Rt} describes how many new infections are <i>effectively</i> caused by a typical infected person within a population (without assuming that everyone is susceptible to the disease). In the beginning of the epidemic, both {Rt} and {R0} are very close to each other. However, as more and more people have had the disease, they have (presumably) developed an immunity towards it. This makes it increasingly harder for the virus to spread, causing {Rt} to diverge lower from {R0}.",
+        "longformEffects": "",
+        "longformDefaultValueJustification": "The default value for {R0} is estimated from 7 days of confirmed case counts. This default value is not hardcoded, it is updated daily as new data comes in. Because of delays in recording new cases, we do not use the most recent 7 days: we exclude the most recent 5 days and then take the next 7 days.<br> <img src='latest_Rt.png' alt='Rt estimates over time' title='Rt estimates over time'/><br> There are many methods to estimate reproduction numbers from data. We use a Bayesian approach described by <a href='https: //journals.plos.org/plosone/article?id=10.1371/journal.pone.0002185'>Bettencourt & Ribeiro</a> in their 2008 paper 'Real Time Bayesian Estimation of the Epidemic Potential of Emerging Infectious Diseases'</a>, which was <a href='http: //systrom.com/blog/the-metric-we-need-to-manage-covid-19/'>adapted and modified</a> for the COVID-19 epidemic by Kevin Systrom. This method gives us an estimate of {Rt }, which we convert to {R0 } by considering our estimate of the proportion of susceptible population p: <br><br> ${math_inline( '\\mathcal{R }_t = \\mathcal{R}_0 * p')} <br><br> If you would like to double-check our computations on Finnish data, see <a href='https: //github.com/futurice/covid-19-R_t-estimating/blob/master/finland.ipynb'>this notebook</a>."
+    },
     "population": {
         "description": "Population",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
@@ -39,7 +54,7 @@
         "unitsDescriptor": "days",
         "isInteger": false,
         "isPercentage": false,
-        "longformDescription": "In our model, incubation period refers to the time between being infected and becoming infectious.",
+        "longformDescription": "In our model, incubation period refers to the time between being infected and becoming infectioaus.",
         "longformDoNotConfuseWith": "Often this term is used to refer to the time between being infected and becoming symptomatic. This is not the case here.",
         "longformEffects": "This parameter affects historical estimates.<br><br>This parameter affects model predictions.",
         "longformDefaultValueJustification": "We assume that patients become infectious on average one day before they start showing symptoms. Therefore, length of the incubation period here should be slightly less than what is believed to be the time period from infection to showing symptoms."
