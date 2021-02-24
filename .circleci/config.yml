@@ -40,12 +40,6 @@ jobs:
           name: deploy
           command: aws s3 sync public/ s3://epi-sim/ --delete
 
-      - run:
-          name: Notify Slack
-          command: |
-            curl -X POST -H 'Content-type: application/json' --data '{"text":"http://epi-sim.s3-website-us-west-1.amazonaws.com/"}' \
-            https://hooks.slack.com/services/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
-
 workflows:
   version: 2
   build:
