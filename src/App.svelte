@@ -6,44 +6,46 @@
   import { selectAll } from 'd3-selection'
   import { drag } from 'd3-drag';
   import queryString from "query-string";
-  import { format } from 'd3-format';
+  // import { format } from 'd3-format';
   import { event } from 'd3-selection';
   import Icon from 'svelte-awesome';
-  import { search, plus, exclamationCircle, times, question } from 'svelte-awesome/icons';
+  import { search, plus, exclamationCircle, times } from 'svelte-awesome/icons';
   import katex from 'katex';
 
   // Custom Svelte components
   import Chart from './components/Chart.svelte';
   import ChartCompanion from './components/ChartCompanion.svelte';
-  import Checkbox from './components/Checkbox.svelte';
-  import Arrow from './components/Arrow.svelte';
-  import HistoryMarker from './components/HistoryMarker.svelte';
+  // import Checkbox from './components/Checkbox.svelte';
+  // import Arrow from './components/Arrow.svelte';
+  // import HistoryMarker from './components/HistoryMarker.svelte';
   import ActionMarker from './components/ActionMarker.svelte';
   import ParameterKnob from './components/ParameterKnob.svelte';
-  import Collapsible from './components/Collapsible.svelte';
+  // import Collapsible from './components/Collapsible.svelte';
 
   // Custom utilities
   import { ActionMarkerData, AM_DAY } from './action_marker_data.js';
   import { UFState, getDefaultStateMeta } from './user_facing_states.js';
   import { get_solution_from_gohs_seir_ode, goh_default_action_markers } from './models/gohs_seir_ode.js';
-  import { map_berkeley_states_into_UFStates, parse_berkeley, get_berkeley_action_markers } from './models/berkeley_abm.js';
-  import { createHistoricalEstimates } from './models/historical_estimates.js';
-  import { getDate, addDays, formatCount, formatDelta, MODEL_GOH, MODEL_CUSTOM, stylizeExpressions } from './utils.js';
-  import { math_inline, math_display, padding } from './utils.js';
+  // import { map_berkeley_states_into_UFStates, parse_berkeley, get_berkeley_action_markers } from './models/berkeley_abm.js';
+  // import { createHistoricalEstimates } from './models/historical_estimates.js';
+  // import { getDate, addDays, formatCount, formatDelta, MODEL_GOH, MODEL_CUSTOM, stylizeExpressions } from './utils.js';
+  import { MODEL_GOH, MODEL_CUSTOM } from './utils.js';
+  // import { math_inline, math_display, padding } from './utils.js';
+  import { math_inline } from './utils.js';
 
   // Static data imports
   import paramConfig from './paramConfig.json';
   // import hs_parsed from '../data/hs_parsed.json';
-  import latestRtEstimate from './../data/latest_Rt.csv';
+  // import latestRtEstimate from './../data/latest_Rt.csv';
 
-  function range(n){
-    return Array(n).fill().map((_, i) => i);
-  }
+  // function range(n){
+  //   return Array(n).fill().map((_, i) => i);
+  // }
 
-  function get_R0_from_Rt(Rt, goh_states_fin) {
-    const prop_susceptible = goh_states_fin[goh_states_fin.length-1][0]
-    return parseFloat((Rt / prop_susceptible).toFixed(2))
-  }
+  // function get_R0_from_Rt(Rt, goh_states_fin) {
+  //   const prop_susceptible = goh_states_fin[goh_states_fin.length-1][0]
+  //   return parseFloat((Rt / prop_susceptible).toFixed(2))
+  // }
 
   // Motivation: when we zoom out, Chart needs every nth datapoint from P.
   function get_every_nth(P, n) {
@@ -54,9 +56,9 @@
     return arr
   }
 
-  function replaceFuturiceFromTextWithLogo(text) {
-    return text.replace('Futurice', '<img alt="Futurice" style="vertical-align:middle; padding: 0px 5px 5px 5px;" width="80" src="futurice.png">')
-  }
+  // function replaceFuturiceFromTextWithLogo(text) {
+  //   return text.replace('Futurice', '<img alt="Futurice" style="vertical-align:middle; padding: 0px 5px 5px 5px;" width="80" src="futurice.png">')
+  // }
 
   let collapsed = {}
 
@@ -127,7 +129,7 @@
 
 
   $: N                 = paramConfig['population'].defaultValue
-  $: logN              = Math.log(N)
+  // $: logN              = Math.log(N)
   // $: I0                = 1
   $: I0                 = paramConfig['initial_infections'].defaultValue
   // $: undetected_infections = paramConfig["undetected_infections"].defaultValue
@@ -240,28 +242,28 @@
     }
   }
 
-  function fetchCustomScenarioAsync() {
-    customScenarioStatus = 'Fetching data...'
-    const url = custom_scenario_url_prefix + customScenarioGUID + custom_scenario_url_postfix
-    fetch(url, { 
-      method: 'GET'
-    })
-    .then((response) => {
-      if (!response.ok) {
-        showUserError(response)
-      }
-      return response
-    })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(json) {
-      parseCustomScenario(json)
-    })
-    .catch(error => {
-      showUserError(error)
-    });
-  }
+  // function fetchCustomScenarioAsync() {
+  //   customScenarioStatus = 'Fetching data...'
+  //   const url = custom_scenario_url_prefix + customScenarioGUID + custom_scenario_url_postfix
+  //   fetch(url, { 
+  //     method: 'GET'
+  //   })
+  //   .then((response) => {
+  //     if (!response.ok) {
+  //       showUserError(response)
+  //     }
+  //     return response
+  //   })
+  //   .then(function(response) {
+  //     return response.json();
+  //   })
+  //   .then(function(json) {
+  //     parseCustomScenario(json)
+  //   })
+  //   .catch(error => {
+  //     showUserError(error)
+  //   });
+  // }
 
   let customScenarioStatus = ''
 
@@ -270,12 +272,12 @@
     console.log(thing)
   }
 
-  function parseCustomScenario(json) {
-    customScenarioStatus = '' // Clear out "Fetching..." message
-    P_all_fetched = parse_berkeley(json["scenario_states"], json["scenario_params"], N)
-    custom_params = {...json["scenario_params"], ...json["parameters"]}
-    actionMarkers = actionMarkerHelper(custom_params)
-  }
+  // function parseCustomScenario(json) {
+  //   customScenarioStatus = '' // Clear out "Fetching..." message
+  //   P_all_fetched = parse_berkeley(json["scenario_states"], json["scenario_params"], N)
+  //   custom_params = {...json["scenario_params"], ...json["parameters"]}
+  //   actionMarkers = actionMarkerHelper(custom_params)
+  // }
 
   function get_solution(selectedModel, P_all_fetched, actionMarkers, goh_states_fin, dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital, P_SEVERE, P_ICU, CFR) {
     if (selectedModel === MODEL_GOH) {
@@ -426,13 +428,13 @@
   let height = 400;
   
 
-  $: xScaleTime = scaleLinear()
-    .domain([0, tmax])
-    .range([padding.left, width - padding.right]);
+  // $: xScaleTime = scaleLinear()
+  //   .domain([0, tmax])
+  //   .range([padding.left, width - padding.right]);
 
-  $: xScaleTimeInv = scaleLinear()
-    .domain([0, width])
-    .range([0, tmax]);
+  // $: xScaleTimeInv = scaleLinear()
+  //   .domain([0, width])
+  //   .range([0, tmax]);
 
   $: indexToTime = scaleLinear()
     .domain([0, P_bars.length])
@@ -460,7 +462,7 @@
     colorIsTextColor: true
   });
   
-  $: p_num_ind = 40
+  // $: p_num_ind = 40
 
   function get_icu_peak(P) {
 
@@ -519,7 +521,7 @@
 <link rel="stylesheet" href="katex.css">
 
 <style>
-  .small { font: italic 6px Source Code Pro; }
+  /* .small { font: italic 6px Source Code Pro; }
   @font-face {
     font-family: 'Source Code Pro';
     font-style: normal;
@@ -527,7 +529,7 @@
     font-display: swap;
     src: local('Source Code Pro Regular'), local('SourceCodePro-Regular'), url(fonts/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevW.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
+  } */
 
   
   @font-face {
@@ -599,14 +601,14 @@
     line-height: 24px
   }
 
-  .ack {
+  /* .ack {
     margin: auto;
     width: 950px;
     padding-bottom: 20px;
     font-weight: 300;
     color:#333;
     font-size: 13px;
-  }
+  } */
 
   .row {
     margin: auto;
@@ -622,7 +624,7 @@
     /*border-top: 2px solid #999*/
   }
 
-  .minorTitle {
+  /* .minorTitle {
     margin: auto;
     display: flex;
     width: 950px;
@@ -634,19 +636,19 @@
     flex: 60px;
     padding: 3px;
     border-bottom: 2px solid #999;
-  }
+  } */
 
 
   .paneltext{
     position:relative;
   }
-
+/* 
   .paneltitle{
     color:#777; 
     line-height: 17px; 
     padding-bottom: 4px;
     font-weight: 700;
-  }
+  } */
 
   .paneldesc{
     color:#888; 
@@ -654,7 +656,7 @@
     font-weight: 300;
   }
 
-  .slidertext{
+  /* .slidertext{
     color:#555; 
     line-height: 7px; 
     padding-bottom: 0px; 
@@ -662,12 +664,11 @@
     font-family: 'Source Code Pro', monospace;
     font-size: 10px;
     text-align: right;
-    /*font-weight: bold*/
-  }
+  } */
     
-  .range {
+  /* .range {
     width: 100%;
-  }
+  } */
 
   .chart {
     width: 100%;
@@ -685,26 +686,25 @@
     line-height: 14px;
   }
 
-  .tick {
+  /* .tick {
     font-size: .725em;
     font-weight: 200;
     font-size: 13px
-  }
+  } */
 
-  td { 
+  /* td { 
     text-align: left;
     border-bottom: 1px solid #DDD;
     border-collapse: collapse;
     padding: 3px;
-    /*font-size: 14px;*/
-  }
+  } */
 
-  tr {
+  /* tr {
     border-collapse: collapse;
     border-spacing: 15px;
-  }
+  } */
 
-  .eqn {
+  /* .eqn {
     margin: auto;
     display: flex;
     flex-flow: row wrap;
@@ -713,7 +713,7 @@
     font-weight: 300;
     color:#666;
     font-size: 16.5px;
-  }
+  } */
 
   :global(.clickableIcons:hover) {
     cursor: pointer;
@@ -734,17 +734,17 @@
       }
   }
 
-  th { font-weight: 500; text-align: left; padding-bottom: 5px; vertical-align: text-top;     border-bottom: 1px solid #DDD; }
+  /* th { font-weight: 500; text-align: left; padding-bottom: 5px; vertical-align: text-top;     border-bottom: 1px solid #DDD; }
 
   a:link { color: grey; }
-  a:visited { color: grey; }
+  a:visited { color: grey; } */
 
 </style>
 
 
 <div>
   <h2>
-  <span style="">Talus EPI Sim</span>
+  <span>EPI Sim</span>
   </h2>
 </div>
 
@@ -920,7 +920,6 @@
     </div> -->
 
    </div>
-
 </div>
 
 <p class="center">
@@ -958,7 +957,6 @@
 
 <!-- Parameter Knobs -->
 <div style="padding-bottom: 10px;">
-  
   <div class="row">
 
     {#if selectedModel === MODEL_GOH}
