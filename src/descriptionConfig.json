@@ -1,0 +1,8 @@
+{
+    "Description": {
+        "html": "This is an SEIR model allowing analysis of multiple interventions to visualize the impact of reductions in the effective transmission rate at different times during an outbreak."
+    },
+    "Parameters": {
+        "html": "<strong>Parameters Table</strong> <table> <thead> <tr> <td>Parameter</td> <td>Description</td> <td>Default Value</td> </tr> </thead> <tbody> <tr> <td>Basic Reproduction Number ${math_inline('\\mathcal{R}_0=2')}</td> <td>The number of people infected by each infected person, on average, when everyone in the population is susceptible.</td> <td>{R0}</td> </tr> <tr> <td>Transmission Rate</td> <td>Rate at which susceptible individuals are infected, which is depending </td> </tr> </tbody> </table>"
+    }
+}
