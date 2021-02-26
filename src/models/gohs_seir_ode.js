@@ -2,119 +2,121 @@ import { UFState } from '../user_facing_states.js';
 import { ActionMarkerData, AM_DAY, AM_EFFECT } from '../action_marker_data.js';
 
 var Integrators = {
-    Euler    : [[1]],
-    Midpoint : [[.5,.5],[0, 1]],
-    Heun     : [[1, 1],[.5,.5]],
-    Ralston  : [[2/3,2/3],[.25,.75]],
-    K3       : [[.5,.5],[1,-1,2],[1/6,2/3,1/6]],
-    SSP33    : [[1,1],[.5,.25,.25],[1/6,1/6,2/3]],
-    SSP43    : [[.5,.5],[1,.5,.5],[.5,1/6,1/6,1/6],[1/6,1/6,1/6,1/2]],
-    RK4      : [[.5,.5],[.5,0,.5],[1,0,0,1],[1/6,1/3,1/3,1/6]],
-    RK38     : [[1/3,1/3],[2/3,-1/3,1],[1,1,-1,1],[1/8,3/8,3/8,1/8]]
+    Euler: [[1]],
+    Midpoint: [[.5, .5], [0, 1]],
+    Heun: [[1, 1], [.5, .5]],
+    Ralston: [[2 / 3, 2 / 3], [.25, .75]],
+    K3: [[.5, .5], [1, -1, 2], [1 / 6, 2 / 3, 1 / 6]],
+    SSP33: [[1, 1], [.5, .25, .25], [1 / 6, 1 / 6, 2 / 3]],
+    SSP43: [[.5, .5], [1, .5, .5], [.5, 1 / 6, 1 / 6, 1 / 6], [1 / 6, 1 / 6, 1 / 6, 1 / 2]],
+    RK4: [[.5, .5], [.5, 0, .5], [1, 0, 0, 1], [1 / 6, 1 / 3, 1 / 3, 1 / 6]],
+    RK38: [[1 / 3, 1 / 3], [2 / 3, -1 / 3, 1], [1, 1, -1, 1], [1 / 8, 3 / 8, 3 / 8, 1 / 8]]
 };
 
 // f is a func of time t and state y
 // y is the initial state, t is the time, h is the timestep
 // updated y is returned.
-var integrate=(m,f,y,t,h)=>{
-    for (var k=[],ki=0; ki<m.length; ki++) {
-        var _y=y.slice(), dt=ki?((m[ki-1][0])*h):0;
-        for (var l=0; l<_y.length; l++) for (var j=1; j<=ki; j++) _y[l]=_y[l]+h*(m[ki-1][j])*(k[ki-1][l]);
-        k[ki]=f(t+dt,_y,dt); 
+var integrate = (m, f, y, t, h) => {
+    for (var k = [], ki = 0; ki < m.length; ki++) {
+        var _y = y.slice(), dt = ki ? ((m[ki - 1][0]) * h) : 0;
+        for (var l = 0; l < _y.length; l++) for (var j = 1; j <= ki; j++) _y[l] = _y[l] + h * (m[ki - 1][j]) * (k[ki - 1][l]);
+        k[ki] = f(t + dt, _y, dt);
     }
-    for (var r=y.slice(),l=0; l<_y.length; l++) for (var j=0; j<k.length; j++) r[l]=r[l]+h*(k[j][l])*(m[ki-1][j]);
+    for (var r = y.slice(), l = 0; l < _y.length; l++) for (var j = 0; j < k.length; j++) r[l] = r[l] + h * (k[j][l]) * (m[ki - 1][j]);
     return r;
 }
 
 export function get_solution_from_gohs_seir_ode(
-    actionMarkersForGoh, 
-    historical_goh_states, 
-    real_dt, 
-    N, 
-    I0, 
-    R0, 
-    D_incbation, 
-    D_infectious, 
-    D_recovery_mild, 
-    D_hospital, 
-    P_SEVERE, 
-    P_ICU, 
+    actionMarkersForGoh,
+    historical_goh_states,
+    real_dt,
+    N,
+    I0,
+    R0,
+    D_incbation,
+    D_infectious,
+    D_recovery_mild,
+    D_hospital,
+    P_SEVERE,
+    P_ICU,
     CFR
-  ) {
+) {
+
+    // console.log('get_solution_from_gohs_seir_ode')
+    // console.log(historical_goh_states)
+    // console.log(actionMarkersForGoh.length)
+
 
     // This used to be a slider in the original Epidemic Calculator.
     const D_death = D_hospital
 
     var interpolation_steps = 40
     var days_to_simulate = 810
-    var steps = 101*interpolation_steps*days_to_simulate/100
-    var dt = 1/interpolation_steps
+    var steps = 101 * interpolation_steps * days_to_simulate / 100
+    var dt = 1 / interpolation_steps
     var sample_step = interpolation_steps
 
     var method = Integrators["RK4"]
-    function f(t, x){
+    function f(t, x) {
 
         // SEIR ODE
 
         // Calculate effects to R0 from actions which occurred before time t.
-        const adjustedTime = t + historical_goh_states.length
         var cumulativeActionMarkerEffects = 1
-        for (var i=0; i<actionMarkersForGoh.length; i++) {
-            const am = actionMarkersForGoh[i]
-            const startTime = am[AM_DAY]
-            if (adjustedTime > startTime) {
+        actionMarkersForGoh.forEach(am => {
+            if (t > am[AM_DAY])
                 cumulativeActionMarkerEffects *= (1 - am[AM_EFFECT])
-            }
-        }
+        })
+
         var beta = cumulativeActionMarkerEffects * R0 / (D_infectious)
 
-        var a        = 1/D_incbation
-        var gamma    = 1/D_infectious
-        
-        var S        = x[0] // Susceptible
-        var E        = x[1] // Exposed
-        var I        = x[2] // Infectious 
-        var Mild     = x[3] // Recovering (Mild)     
-        var Severe   = x[4] // Recovering (Severe at home)
+        var a = 1 / D_incbation
+        var gamma = 1 / D_infectious
+
+        var S = x[0] // Susceptible
+        var E = x[1] // Exposed
+        var I = x[2] // Infectious 
+        var Mild = x[3] // Recovering (Mild)     
+        var Severe = x[4] // Recovering (Severe at home)
         var Severe_H = x[5] // Recovering (Severe in hospital)
-        var Fatal    = x[6] // Recovering (Fatal)
-        var R_Mild   = x[7] // Recovered
+        var Fatal = x[6] // Recovering (Fatal)
+        var R_Mild = x[7] // Recovered
         var R_Severe = x[8] // Recovered
-        var R_Fatal  = x[9] // Dead
+        var R_Fatal = x[9] // Dead
 
         var p_severe = P_SEVERE
-        var p_fatal  = CFR
-        var p_mild   = 1 - P_SEVERE - CFR
+        var p_fatal = CFR
+        var p_mild = 1 - P_SEVERE - CFR
 
-        var dS        = -beta*I*S
-        var dE        =  beta*I*S - a*E
-        var dI        =  a*E - gamma*I
-        var dMild     =  p_mild*gamma*I   - (1/D_recovery_mild)*Mild
-        var dSevere   =  0 // Modified from Goh's original model: hospitalizations go to hospital without delay.
-        var dSevere_H =  p_severe*gamma*I - (1/D_hospital)*Severe_H
-        var dFatal    =  p_fatal*gamma*I  - (1/D_death)*Fatal
-        var dR_Mild   =  (1/D_recovery_mild)*Mild
-        var dR_Severe =  (1/D_hospital)*Severe_H
-        var dR_Fatal  =  (1/D_death)*Fatal
+        var dS = -beta * I * S
+        var dE = beta * I * S - a * E
+        var dI = a * E - gamma * I
+        var dMild = p_mild * gamma * I - (1 / D_recovery_mild) * Mild
+        var dSevere = 0 // Modified from Goh's original model: hospitalizations go to hospital without delay.
+        var dSevere_H = p_severe * gamma * I - (1 / D_hospital) * Severe_H
+        var dFatal = p_fatal * gamma * I - (1 / D_death) * Fatal
+        var dR_Mild = (1 / D_recovery_mild) * Mild
+        var dR_Severe = (1 / D_hospital) * Severe_H
+        var dR_Fatal = (1 / D_death) * Fatal
 
         //      0   1   2   3      4        5          6       7        8          9
         return [dS, dE, dI, dMild, dSevere, dSevere_H, dFatal, dR_Mild, dR_Severe, dR_Fatal]
     }
 
     // If historical data is available, we take the last historical state as our start state.
-    var v = [1 - I0/N, 0, I0/N, 0, 0, 0, 0, 0, 0, 0]
-        // historical_goh_states ?
-        // v = historical_goh_states[historical_goh_states.length - 1] :
-        // [1 - I0/N, 0, I0/N, 0, 0, 0, 0, 0, 0, 0]
+    var v = [1 - I0 / N, 0, I0 / N, 0, 0, 0, 0, 0, 0, 0]
+    // historical_goh_states ?
+    // v = historical_goh_states[historical_goh_states.length - 1] :
+    // [1 - I0/N, 0, I0/N, 0, 0, 0, 0, 0, 0, 0]
 
     var t = 0
     var goh_states = []
-    while (steps--) { 
-        if ((steps+1) % (sample_step) == 0) {
+    while (steps--) {
+        if ((steps + 1) % (sample_step) == 0) {
             goh_states.push(v.slice())
         }
-        v =integrate(method,f,v,t,dt); 
-        t+=dt
+        v = integrate(method, f, v, t, dt);
+        t += dt
     }
 
     const uf_states = map_goh_states_into_UFStates(goh_states, N, P_ICU)
@@ -136,11 +138,11 @@ export function get_solution_from_gohs_seir_ode(
  */
 function map_goh_states_into_ORIGINAL_user_facing_states(goh_states, N) {
     return goh_states.map(v => {
-        const dead = N*v[9]
-        const hospitalized = N*(v[5]+v[6])
-        const recovered = N*(v[7] + v[8])
-        const infectious = N*v[2]
-        const exposed = N*v[1]
+        const dead = N * v[9]
+        const hospitalized = N * (v[5] + v[6])
+        const recovered = N * (v[7] + v[8])
+        const infectious = N * v[2]
+        const exposed = N * v[1]
         return [dead, hospitalized, recovered, infectious, exposed]
     })
 }

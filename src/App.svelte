@@ -1,156 +1,158 @@
 <script>
   // Libraries
-  import { scaleLinear } from "d3-scale";
-  import { onMount } from "svelte";
-  import { selectAll } from "d3-selection";
-  import { drag } from "d3-drag";
-  import queryString from "query-string";
-  import { event } from "d3-selection";
-  import Icon from "svelte-awesome";
-  import { search, plus, exclamationCircle, times } from "svelte-awesome/icons";
-  import katex from "katex";
+  import { scaleLinear } from 'd3-scale'
+  import { onMount } from 'svelte'
+  import { selectAll } from 'd3-selection'
+  import { drag } from 'd3-drag'
+  import queryString from 'query-string'
+  import { event } from 'd3-selection'
+  import Icon from 'svelte-awesome'
+  import { search, plus, exclamationCircle, times } from 'svelte-awesome/icons'
+  import katex from 'katex'
 
   // Custom Svelte components
-  import Chart from "./components/Chart.svelte";
-  import ChartCompanion from "./components/ChartCompanion.svelte";
-  import ActionMarker from "./components/ActionMarker.svelte";
-  import ParameterKnob from "./components/ParameterKnob.svelte";
-  // import Collapsible from './components/Collapsible.svelte';
+  import Chart from './components/Chart.svelte'
+  import ChartCompanion from './components/ChartCompanion.svelte'
+  import ActionMarker from './components/ActionMarker.svelte'
+  import ParameterKnob from './components/ParameterKnob.svelte'
+  import Collapsible from './components/Collapsible.svelte'
 
   // Custom utilities
-  import { ActionMarkerData, AM_DAY } from "./action_marker_data.js";
-  import { UFState, getDefaultStateMeta } from "./user_facing_states.js";
+  import { ActionMarkerData, AM_DAY } from './action_marker_data.js'
+  import { UFState, getDefaultStateMeta } from './user_facing_states.js'
   import {
     get_solution_from_gohs_seir_ode,
     goh_default_action_markers,
-  } from "./models/gohs_seir_ode.js";
-  import { MODEL_GOH, MODEL_CUSTOM } from "./utils.js";
-  import { math_inline } from "./utils.js";
+  } from './models/gohs_seir_ode.js'
+  import { MODEL_GOH, MODEL_CUSTOM } from './utils.js'
+  import { math_inline } from './utils.js'
 
   // Static data imports
-  import paramConfig from "./paramConfig.json";
+  import paramConfig from './paramConfig.json'
+  import descriptionConfig from './descriptionConfig.json'
+
+  const descriptions = Object.entries(descriptionConfig)
 
   // Motivation: when we zoom out, Chart needs every nth datapoint from P.
   function get_every_nth(P, n) {
-    var arr = [];
+    var arr = []
     for (var i = 0; i < P.length; i += n) {
-      arr.push(P[i]);
+      arr.push(P[i])
     }
-    return arr;
+    return arr
   }
 
-  let collapsed = {};
+  let collapsed = {}
 
-  let display_scenario_dropdown = false;
+  let display_scenario_dropdown = false
 
   // let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
 
-  $: N = paramConfig["population"].defaultValue;
-  $: I0 = paramConfig["initial_infections"].defaultValue;
+  $: N = paramConfig['population'].defaultValue
+  $: I0 = paramConfig['initial_infections'].defaultValue
   $: D_incbation =
-    paramConfig["days_from_incubation_to_infectious"].defaultValue;
+    paramConfig['days_from_incubation_to_infectious'].defaultValue
 
   $: D_infectious =
-    paramConfig["days_from_infectious_to_not_infectious"].defaultValue;
+    paramConfig['days_from_infectious_to_not_infectious'].defaultValue
 
-  $: D_recovery_mild =
-    paramConfig["days_in_mild_recovering_state"].defaultValue;
+  $: D_recovery_mild = paramConfig['days_in_mild_recovering_state'].defaultValue
 
-  $: D_hospital = paramConfig["days_in_hospital"].defaultValue;
-  $: CFR = paramConfig["fatality_rate"].defaultValue;
-  $: Time = 220;
-  $: Xmax = 110000;
-  $: dt = 8;
-  $: P_SEVERE = paramConfig["hospitalization_rate"].defaultValue;
-  $: P_ICU = paramConfig["icu_rate_from_hospitalized"].defaultValue;
-  $: icuCapacity = paramConfig["icu_capacity"].defaultValue;
+  $: D_hospital = paramConfig['days_in_hospital'].defaultValue
+  $: CFR = paramConfig['fatality_rate'].defaultValue
+  $: Time = 220
+  $: Xmax = 110000
+  $: dt = 8
+  $: P_SEVERE = paramConfig['hospitalization_rate'].defaultValue
+  $: P_ICU = paramConfig['icu_rate_from_hospitalized'].defaultValue
+  $: icuCapacity = paramConfig['icu_capacity'].defaultValue
 
-  $: dt, console.log(dt);
+  $: dt, console.log(dt)
 
-  const onChange_P_SEVERE = (e) => {
-    const eventValue = Number(e.target.value);
+  const onChange_P_SEVERE = e => {
+    const eventValue = Number(e.target.value)
     if (eventValue > CFR) {
-      P_SEVERE = eventValue;
+      P_SEVERE = eventValue
     } else {
-      P_SEVERE = 0; // to force update
-      setTimeout(() => (P_SEVERE = CFR), 0);
+      P_SEVERE = 0 // to force update
+      setTimeout(() => (P_SEVERE = CFR), 0)
     }
-  };
+  }
 
-  const onChangeCFR = (e) => {
-    const eventValue = Number(e.target.value);
-    const change = eventValue - CFR;
-    const newValue = P_SEVERE + change;
-    const max = paramConfig["hospitalization_rate"].maxValue;
+  const onChangeCFR = e => {
+    const eventValue = Number(e.target.value)
+    const change = eventValue - CFR
+    const newValue = P_SEVERE + change
+    const max = paramConfig['hospitalization_rate'].maxValue
 
-    P_SEVERE = newValue < max ? newValue : max;
-    CFR = eventValue;
-  };
+    P_SEVERE = newValue < max ? newValue : max
+    CFR = eventValue
+  }
 
   function toggleZoomStates() {
-    dt *= 2;
-    if (dt > 8) dt = 2;
+    dt *= 2
+    if (dt > 8) dt = 2
   }
 
   function closePopup() {
-    popupHTML = "";
+    popupHTML = ''
   }
 
   function addActionMarker() {
     actionMarkers[selectedModel].push(
       new ActionMarkerData(99 * dt, undefined, -0.1, true)
-    );
-    actionMarkers = actionMarkers; // Trigger re-render
+    )
+    actionMarkers = actionMarkers // Trigger re-render
   }
 
   function with_enough_days(P, dt) {
-    var augmented = [];
+    var augmented = []
     for (var i = 0; i < P.length; i++) {
-      augmented.push(P[i]);
+      augmented.push(P[i])
     }
     // If we have too few values, augment with empty so that the Chart renders properly.
     while (augmented.length < 101 * dt) {
-      augmented.push(new UFState(0, 0, 0, 0, 0, 0));
+      augmented.push(new UFState(0, 0, 0, 0, 0, 0))
     }
-    return augmented;
+    return augmented
   }
 
   function take_slice_from_beginning(P, dt) {
-    var augmented = [];
+    var augmented = []
     for (var i = 0; i < P.length; i++) {
-      augmented.push(P[i]);
+      augmented.push(P[i])
     }
     // If we have too many values, take desired slice from the beginning.
-    augmented = augmented.slice(0, 101 * dt);
-    return augmented;
+    augmented = augmented.slice(0, 101 * dt)
+    return augmented
   }
 
   function getPmax(P_bars, states) {
-    var Pmax = 0;
+    var Pmax = 0
     for (var i = 0; i < P_bars.length; i++) {
-      const bars = P_bars[i];
-      var curr = 0;
+      const bars = P_bars[i]
+      var curr = 0
       for (var j = 0; j < states.length; j++) {
-        const state = states[j];
-        if (state["checked"]) {
-          const k = state["key"];
-          curr += P_bars[i][k];
+        const state = states[j]
+        if (state['checked']) {
+          const k = state['key']
+          curr += P_bars[i][k]
         }
       }
       if (curr > Pmax) {
-        Pmax = curr;
+        Pmax = curr
       }
     }
-    return Pmax;
+    return Pmax
   }
 
-  /********************************** Generate state (choose which model to run, run it with user specified parameters, etc.) *********************************/
+  /* Generate state (choose which model to run, run it with user specified parameters, etc.) */
 
   function debugHelper([...vars]) {
-    if (vars.length == 0) return;
-    console.log("*** DEBUG ***");
+    if (vars.length == 0) return
+    console.log('*** DEBUG ***')
     for (var i = 0; i < vars.length; i++) {
-      console.log(vars[i]);
+      console.log(vars[i])
     }
   }
 
@@ -172,7 +174,9 @@
     CFR
   ) {
     if (selectedModel === MODEL_GOH) {
-      return get_solution_from_gohs_seir_ode(
+      var start = performance.now()
+
+      const solution = get_solution_from_gohs_seir_ode(
         actionMarkers[selectedModel],
         goh_states_fin,
         tmax,
@@ -186,35 +190,43 @@
         P_SEVERE,
         P_ICU,
         CFR
-      );
+      )
+
+      var end = performance.now()
+      var duration = end - start
+      console.log(duration)
+
+      return solution
     } else if (selectedModel === MODEL_CUSTOM) {
-      return P_all_fetched;
+      return P_all_fetched
     } else {
       console.log(
-        "Error! getSolution does not have handling for model ",
+        'Error! getSolution does not have handling for model ',
         selectedModel
-      );
+      )
     }
   }
 
   function actionMarkerHelper() {
-    const m = actionMarkers || {};
+    const m = actionMarkers || {}
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
-      m[MODEL_GOH] = goh_default_action_markers();
+      m[MODEL_GOH] = goh_default_action_markers()
     }
-    return m;
+    return m
   }
 
-  let customScenarioGUID = queryString.parse(location.search).customScenario;
-  let P_all_fetched = []; // For "Custom scenario": empty array until we get data.
+  let customScenarioGUID = queryString.parse(location.search).customScenario
+  let P_all_fetched = [] // For "Custom scenario": empty array until we get data.
 
-  $: selectedModel = customScenarioGUID ? MODEL_CUSTOM : MODEL_GOH;
-  $: goh_states_fin = [];
-  $: R0 = 2;
+  $: selectedModel = customScenarioGUID ? MODEL_CUSTOM : MODEL_GOH
+  $: goh_states_fin = []
+  $: R0 = 2
 
-  $: actionMarkers = actionMarkerHelper();
-  $: stateMeta = getDefaultStateMeta();
+  $: goh_states_fin, console.log(goh_states_fin)
+
+  $: actionMarkers = actionMarkerHelper()
+  $: stateMeta = getDefaultStateMeta()
 
   $: P_all_future = get_solution(
     selectedModel,
@@ -232,153 +244,150 @@
     P_SEVERE,
     P_ICU,
     CFR
-  );
+  )
   // $: P_all            = with_enough_days(P_all_historical.concat(P_all_future), dt)
-  $: P_all = with_enough_days(P_all_future, dt);
-  $: P_bars = get_every_nth(take_slice_from_beginning(P_all, dt), dt);
-  $: timestep = dt;
-  $: tmax = dt * 101;
-  $: Pmax = getPmax(P_bars, stateMeta);
-  $: lock = false;
-  $: debugHelp = debugHelper([]);
-  $: flashMessage = "";
-  $: popupHTML = "";
+  $: P_all = with_enough_days(P_all_future, dt)
+  $: P_bars = get_every_nth(take_slice_from_beginning(P_all, dt), dt)
+  $: timestep = dt
+  $: tmax = dt * 101
+  $: Pmax = getPmax(P_bars, stateMeta)
+  $: lock = false
+  $: debugHelp = debugHelper([])
+  $: flashMessage = ''
+  $: popupHTML = ''
 
-  var Plock = 1;
+  var Plock = 1
 
   var drag_y = function () {
-    var dragstarty = 0;
-    var Pmaxstart = 0;
+    var dragstarty = 0
+    var Pmaxstart = 0
 
     var dragstarted = function (d) {
-      dragstarty = event.y;
-      Pmaxstart = Pmax;
-    };
-
-    var dragged = function (d) {
-      Pmax = Math.max(Pmaxstart * (1 + (event.y - dragstarty) / 500), 10);
-    };
-
-    return drag().on("drag", dragged).on("start", dragstarted);
-  };
-
-  var drag_x = function () {
-    var dragstartx = 0;
-    var dtstart = 0;
-    var Pmaxstart = 0;
-    var dragstarted = function (d) {
-      dragstartx = event.x;
-      dtstart = dt;
-      Plock = Pmax;
-      lock = true;
-    };
-    var dragged = function (d) {
-      dt = dtstart - 0.0015 * (event.x - dragstartx);
-    };
-    var dragend = function (d) {
-      lock = false;
-    };
-    return drag()
-      .on("drag", dragged)
-      .on("start", dragstarted)
-      .on("end", dragend);
-  };
-
-  $: parsed = "";
-  onMount(async () => {
-    if (customScenarioGUID) {
-      fetchCustomScenarioAsync();
+      dragstarty = event.y
+      Pmaxstart = Pmax
     }
 
-    var drag_callback_y = drag_y();
-    drag_callback_y(selectAll("#yAxisDrag"));
-  });
+    var dragged = function (d) {
+      Pmax = Math.max(Pmaxstart * (1 + (event.y - dragstarty) / 500), 10)
+    }
+
+    return drag().on('drag', dragged).on('start', dragstarted)
+  }
+
+  var drag_x = function () {
+    var dragstartx = 0
+    var dtstart = 0
+    var Pmaxstart = 0
+    var dragstarted = function (d) {
+      dragstartx = event.x
+      dtstart = dt
+      Plock = Pmax
+      lock = true
+    }
+    var dragged = function (d) {
+      dt = dtstart - 0.0015 * (event.x - dragstartx)
+    }
+    var dragend = function (d) {
+      lock = false
+    }
+    return drag()
+      .on('drag', dragged)
+      .on('start', dragstarted)
+      .on('end', dragend)
+  }
+
+  $: parsed = ''
+  onMount(async () => {
+    if (customScenarioGUID) {
+      fetchCustomScenarioAsync()
+    }
+
+    var drag_callback_y = drag_y()
+    drag_callback_y(selectAll('#yAxisDrag'))
+  })
 
   function lock_yaxis() {
-    Plock = Pmax;
-    lock = true;
+    Plock = Pmax
+    lock = true
   }
 
   function unlock_yaxis() {
-    lock = false;
+    lock = false
   }
 
-  let width = 750;
-  let height = 400;
+  let width = 750
+  let height = 400
 
-  $: indexToTime = scaleLinear().domain([0, P_bars.length]).range([0, tmax]);
+  $: indexToTime = scaleLinear().domain([0, P_bars.length]).range([0, tmax])
 
-  window.addEventListener("mouseup", unlock_yaxis);
+  window.addEventListener('mouseup', unlock_yaxis)
 
   function activeHelper(active) {
     if (active >= 0) {
       // Case: User hovers over a bar or has locked a bar.
-      return active;
+      return active
     }
-    return Math.min(100);
+    return Math.min(100)
   }
 
-  $: active = 0;
-  $: active_ = activeHelper(active);
+  $: active = 0
+  $: active_ = activeHelper(active)
 
-  var Tinc_s = "\\color{#CCC}{T^{-1}_{\\text{inc}}} ";
-  var Tinf_s = "\\color{#CCC}{T^{-1}_{\\text{inf}}}";
-  var Rt_s = "\\color{#CCC}{\\frac{\\mathcal{R}_{t}}{T_{\\text{inf}}}} ";
+  var Tinc_s = '\\color{#CCC}{T^{-1}_{\\text{inc}}} '
+  var Tinf_s = '\\color{#CCC}{T^{-1}_{\\text{inf}}}'
+  var Rt_s = '\\color{#CCC}{\\frac{\\mathcal{R}_{t}}{T_{\\text{inf}}}} '
   $: ode_eqn = katex.renderToString(
-    "\\frac{d S}{d t}=-" +
+    '\\frac{d S}{d t}=-' +
       Rt_s +
-      "\\cdot IS,\\qquad \\frac{d E}{d t}=" +
+      '\\cdot IS,\\qquad \\frac{d E}{d t}=' +
       Rt_s +
-      "\\cdot IS- " +
+      '\\cdot IS- ' +
       Tinc_s +
-      " E,\\qquad \\frac{d I}{d t}=" +
+      ' E,\\qquad \\frac{d I}{d t}=' +
       Tinc_s +
-      "E-" +
+      'E-' +
       Tinf_s +
-      "I, \\qquad \\frac{d R}{d t}=" +
+      'I, \\qquad \\frac{d R}{d t}=' +
       Tinf_s +
-      "I",
+      'I',
     {
       throwOnError: false,
       displayMode: true,
       colorIsTextColor: true,
     }
-  );
+  )
 
   // $: p_num_ind = 40
 
   function get_icu_peak(P) {
     function argmax(k) {
-      var maxVal = 0;
-      var maxValIndex = 0;
+      var maxVal = 0
+      var maxValIndex = 0
       for (var i = 0; i < P.length; i += 1) {
-        const val = P[i][k];
+        const val = P[i][k]
         if (val > maxVal) {
-          maxVal = val;
-          maxValIndex = i;
+          maxVal = val
+          maxValIndex = i
         }
       }
-      return maxValIndex;
+      return maxValIndex
     }
 
-    const peakICUDay = argmax("icu");
-    const peakICUCount = Math.round(P[peakICUDay]["icu"]);
-    return [peakICUDay, peakICUCount];
+    const peakICUDay = argmax('icu')
+    const peakICUCount = Math.round(P[peakICUDay]['icu'])
+    return [peakICUDay, peakICUCount]
   }
 
-  $: [peakICUDay, peakICUCount] = get_icu_peak(P_all);
-  $: log = true;
+  $: [peakICUDay, peakICUCount] = get_icu_peak(P_all)
+  $: log = true
 </script>
 
 <link rel="stylesheet" href="katex.css" />
 
-<div>
-  <h2>
-    <span>EPI Sim</span>
-  </h2>
-</div>
-
-<h5>SEIR Model with Hospitalizations</h5>
+<header>
+  <h2>EPI Sim</h2>
+  <h3>SEIR Model with Hospitalizations</h3>
+</header>
 
 <div class="mobileWarning">
   <h3>
@@ -432,7 +441,7 @@
     <!-- Flash message to help the user understand why some action was not possible. -->
     <div
       on:click={() => {
-        flashMessage = "";
+        flashMessage = ''
       }}
       style="position: absolute;
                 left: 400px;
@@ -537,7 +546,7 @@
 </p>
 
 <!-- Large popup when user clicks a question mark icon. -->
-{#if popupHTML !== ""}
+{#if popupHTML !== ''}
   <div class="center" style="padding-bottom: 0px;">
     <div
       style="position: absolute; width: 950px; background-color: white; border: 1px solid #CCC; border-radius: 5px; z-index: 999999;"
@@ -580,18 +589,18 @@
     {#if selectedModel === MODEL_GOH}
       <div class="column">
         <ParameterKnob
-          p={paramConfig["population"]}
+          p={paramConfig['population']}
           bind:value={N}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig["initial_infections"]}
+          p={paramConfig['initial_infections']}
           bind:value={I0}
           bind:popupHTML
         />
       </div>
       <div class="column" style="margin-left: 0;">
-        <ParameterKnob p={paramConfig["R0"]} bind:value={R0} bind:popupHTML />
+        <ParameterKnob p={paramConfig['R0']} bind:value={R0} bind:popupHTML />
         <div class="paneltext paneldesc">
           <i
             >Please note that R0 is affected by action markers (those vertical
@@ -601,37 +610,37 @@
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig["days_from_incubation_to_infectious"]}
+          p={paramConfig['days_from_incubation_to_infectious']}
           bind:value={D_incbation}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig["days_from_infectious_to_not_infectious"]}
+          p={paramConfig['days_from_infectious_to_not_infectious']}
           bind:value={D_infectious}
           bind:popupHTML
         />
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig["days_in_hospital"]}
+          p={paramConfig['days_in_hospital']}
           bind:value={D_hospital}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig["days_in_mild_recovering_state"]}
+          p={paramConfig['days_in_mild_recovering_state']}
           bind:value={D_recovery_mild}
           bind:popupHTML
         />
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig["hospitalization_rate"]}
+          p={paramConfig['hospitalization_rate']}
           onChange={onChange_P_SEVERE}
           value={P_SEVERE}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig["fatality_rate"]}
+          p={paramConfig['fatality_rate']}
           onChange={onChangeCFR}
           value={CFR}
           bind:popupHTML
@@ -639,12 +648,12 @@
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig["icu_rate_from_hospitalized"]}
+          p={paramConfig['icu_rate_from_hospitalized']}
           bind:value={P_ICU}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig["icu_capacity"]}
+          p={paramConfig['icu_capacity']}
           bind:value={icuCapacity}
           bind:popupHTML
         />
@@ -652,6 +661,14 @@
     {/if}
   </div>
 </div>
+
+{#each descriptions as [name, contents]}
+  <Collapsible title={name} bind:collapsed defaultCollapsed={false}>
+    <div>
+      {@html contents.html}
+    </div>
+  </Collapsible>
+{/each}
 
 <!-- {#if selectedModel === MODEL_GOH}
 
@@ -811,61 +828,49 @@
 {/if} -->
 <style>
   @font-face {
-    font-family: "Liberation Sans";
+    font-family: 'Liberation Sans';
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url(fonts/LiberationSans-Regular.ttf) format("truetype");
+    src: url(fonts/LiberationSans-Regular.ttf) format('truetype');
   }
 
   @font-face {
-    font-family: "Liberation Sans";
+    font-family: 'Liberation Sans';
     font-style: normal;
     font-weight: bold;
     font-display: swap;
-    src: url(fonts/LiberationSans-Bold.ttf) format("truetype");
+    src: url(fonts/LiberationSans-Bold.ttf) format('truetype');
   }
 
   @font-face {
-    font-family: "Liberation Sans";
+    font-family: 'Liberation Sans';
     font-style: italic;
     font-weight: normal;
     font-display: swap;
-    src: url(fonts/LiberationSans-Italic.ttf) format("truetype");
+    src: url(fonts/LiberationSans-Italic.ttf) format('truetype');
   }
 
   @font-face {
-    font-family: "Liberation Sans";
+    font-family: 'Liberation Sans';
     font-style: italic;
     font-weight: bold;
     font-display: swap;
-    src: url(fonts/LiberationSans-BoldItalic.ttf) format("truetype");
+    src: url(fonts/LiberationSans-BoldItalic.ttf) format('truetype');
   }
 
   :global(html) {
     overflow-y: scroll;
-    font-family: "Liberation Sans";
+    font-family: 'Liberation Sans';
+  }
+
+  header {
+    margin: 5rem 1rem;
   }
 
   h2 {
-    margin: auto;
-    width: 950px;
     font-size: 40px;
-    padding-top: 20px;
-    padding-bottom: 0px;
     font-weight: 300;
-  }
-
-  h5 {
-    margin: auto;
-    margin-top: 0;
-    width: 950px;
-    font-size: 16px;
-    padding-left: 40px;
-    padding-bottom: 20px;
-    font-weight: 300;
-    font-style: italic;
-    padding-bottom: 30px;
   }
 
   .center {
