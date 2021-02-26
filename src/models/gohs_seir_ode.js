@@ -62,7 +62,7 @@ export function get_solution_from_gohs_seir_ode(
         // SEIR ODE
 
         // Calculate effects to R0 from actions which occurred before time t.
-        var cumulativeActionMarkerEffects = 1
+        let cumulativeActionMarkerEffects = 1
         actionMarkersForGoh.forEach(am => {
             if (t > am[AM_DAY])
                 cumulativeActionMarkerEffects *= (1 - am[AM_EFFECT])
@@ -184,8 +184,12 @@ export function map_goh_states_into_UFStates(goh_states, N, P_ICU) {
 
 export function goh_default_action_markers() {
     return [
-        new ActionMarkerData(380, "Cold weather", 0.1),
-        new ActionMarkerData(450, "Test", -0.3),
+        // new ActionMarkerData(380, "Cold weather", 0.1),
+        // new ActionMarkerData(450, "Test", -0.3),
+        new ActionMarkerData(10, 'one', -0.7),
+        new ActionMarkerData(50, 'two', .8),
+        new ActionMarkerData(60, 'three', -.2),
+        new ActionMarkerData(150, 'four', 0.6),
     ]
     // .filter(am => {
     //     // Prevent action markers from falling behind the historical marker

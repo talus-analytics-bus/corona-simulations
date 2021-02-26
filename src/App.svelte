@@ -24,12 +24,18 @@
     get_solution_from_gohs_seir_ode,
     goh_default_action_markers,
   } from './models/gohs_seir_ode.js'
+
   import { MODEL_GOH, MODEL_CUSTOM } from './utils.js'
   import { math_inline } from './utils.js'
 
   // Static data imports
   import paramConfig from './paramConfig.json'
   import descriptionConfig from './descriptionConfig.json'
+
+  // Talus Model
+  import talusSEIR from './models/talusSEIRModel/model'
+  import getInitial from './models/talusSEIRModel/initial'
+  import getEpiParams from './models/talusSEIRModel/params'
 
   const descriptions = Object.entries(descriptionConfig)
 
@@ -174,29 +180,67 @@
     CFR
   ) {
     if (selectedModel === MODEL_GOH) {
-      var start = performance.now()
+      // var start = performance.now()
 
-      const solution = get_solution_from_gohs_seir_ode(
-        actionMarkers[selectedModel],
-        goh_states_fin,
-        tmax,
-        N,
-        I0,
-        R0,
-        D_incbation,
-        D_infectious,
-        D_recovery_mild,
-        D_hospital,
-        P_SEVERE,
-        P_ICU,
-        CFR
-      )
+      // const solution = get_solution_from_gohs_seir_ode(
+      //   actionMarkers[selectedModel],
+      //   goh_states_fin,
+      //   tmax,
+      //   N,
+      //   I0,
+      //   R0,
+      //   D_incbation,
+      //   D_infectious,
+      //   D_recovery_mild,
+      //   D_hospital,
+      //   P_SEVERE,
+      //   P_ICU,
+      //   CFR
+      // )
 
-      var end = performance.now()
-      var duration = end - start
-      console.log(duration)
+      // console.log(actionMarkers[selectedModel])
 
-      return solution
+      const initial = getInitial({
+        days_to_model: 365,
+        population: 1000,
+        exposed: 5,
+      })
+
+      const epiParams = getEpiParams(initial)
+
+      const interventions = actionMarkers[selectedModel].map(am => ({
+        day: am.day,
+        effect: am.effect * -1,
+      }))
+
+      const talusSolution = talusSEIR({
+        interventions,
+        // interventions: [
+        //   { day: 10, effect: -0.7 },
+        //   { day: 50, effect: 0.8 },
+        //   { day: 60, effect: -0.2 },
+        //   { day: 150, effect: 0.6 },
+        // ],
+        // interventions: [
+        //   new ActionMarkerData(10, 'one', -0.7),
+        //   new ActionMarkerData(50, 'two', 0.8),
+        //   new ActionMarkerData(60, 'three', -0.2),
+        //   new ActionMarkerData(150, 'four', 0.6),
+        // ],
+        epiParams,
+        initial,
+      })
+
+      // console.log('goh')
+      // console.log(solution)
+      // console.log('talus')
+      // console.log(talusSolution)
+
+      // var end = performance.now()
+      // var duration = end - start
+      // console.log(duration)
+
+      return talusSolution
     } else if (selectedModel === MODEL_CUSTOM) {
       return P_all_fetched
     } else {

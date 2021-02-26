@@ -1,5 +1,7 @@
 import { integrationMethods, integrate, sum, dotProduct } from './helpers'
 
+import { UFState } from '../../user_facing_states.js';
+
 // percentage of the total policy
 // effectiveness for the first n days 
 // of the policy. 
@@ -53,6 +55,8 @@ const talusSEIR = ({
     interventions,
     epiParams,
 }) => {
+
+    console.log(interventions)
 
     // making this two letters just to 
     // make the formulas easier to read
@@ -133,9 +137,13 @@ const talusSEIR = ({
     for (let step = 0; step <= initial.days_to_model; step += initial.stepDays) {
         day = integrate(integrationMethods.RK4, deriv, day, step, initial.stepDays)
 
+        console.log(interventions[0].effect)
+
+        // console.log(getInterventionEffect(step, interventions))
+
         // This is where we'll hook this in with
         // the UI from the Finnish team
-        days.push({
+        const res = {
             day: step,
             exposed: day[0],
             mild: day[1],
@@ -144,8 +152,22 @@ const talusSEIR = ({
             recovered: day[4],
             dead: day[5],
             asymp: day[6],
-            rt: getRt(step, day, initial, eP, interventions),
-        })
+            // rt: getRt(step, day, initial, eP, interventions),
+        }
+
+        days.push(
+            new UFState(
+                // initial.population - (res.asymp + res.mild + res.hospitalized + res.icu) - res.recovered - res.dead, // suscep
+                0,
+                // res.asymp + res.mild + res.hospitalized + res.icu, // infected
+                res.exposed,
+                res.hospitalized, // hospitalized
+                res.icu, // icu
+                res.recovered, // recovered 
+                res.dead // fatalities
+            )
+        )
+
     }
 
     return (days)
