@@ -201,7 +201,7 @@
       // console.log(actionMarkers[selectedModel])
 
       const initial = getInitial({
-        days_to_model: 365,
+        days_to_model: 800,
         population: 1000,
         exposed: 5,
       })
