@@ -13,7 +13,7 @@ const getInitial = ({ days_to_model, population, exposed }) => {
     initial.stepDays = 1
 
     // define constants used in model parameter calculations
-    initial.observed_daily_growth_rate = 1.17
+    // initial.observed_daily_growth_rate = 1.17
 
     // when going back to test hypothetical intervnetions in the past,
     // use this to start the data from this date instead of latest reported
