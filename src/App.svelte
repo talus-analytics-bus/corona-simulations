@@ -429,8 +429,8 @@
 <link rel="stylesheet" href="katex.css" />
 
 <header>
-  <h2>EPI Sim</h2>
-  <h3>SEIR Model with Hospitalizations</h3>
+  <h2>Talus Analytics SEIR Model</h2>
+  <h3>SEIR Model with Hospitalizations, ICU, and Asymptomatic infections</h3>
 </header>
 
 <div class="mobileWarning">
@@ -444,7 +444,7 @@
   <div style="flex: 0 0 300px; width:300px;">
     <div style="height: 50px;">
       <!-- Deprecated scenario dropdown selector. -->
-      {#if display_scenario_dropdown}
+      <!-- {#if display_scenario_dropdown}
         <div
           class="legendtext"
           style="font-size: 14px; line-height:16px; font-weight: bold; color: #777;"
@@ -459,7 +459,7 @@
             >Custom scenario (precomputed)</option
           >
         </select>
-      {/if}
+      {/if} -->
     </div>
 
     <!-- ChartCompanion (scenario outcome and highlighted day, left side of chart). -->
@@ -584,10 +584,10 @@
     {/each}
   </div>
 </div>
-
+<!-- 
 <p class="center">
   <b>Parameter configuration</b>
-</p>
+</p> -->
 
 <!-- Large popup when user clicks a question mark icon. -->
 {#if popupHTML !== ''}
@@ -630,6 +630,9 @@
 <!-- Parameter Knobs -->
 <div style="padding-bottom: 10px;">
   <div class="row">
+    <h4>Basic Parameters</h4>
+  </div>
+  <div class="row">
     {#if selectedModel === MODEL_GOH}
       <div class="column">
         <ParameterKnob
@@ -643,7 +646,7 @@
           bind:popupHTML
         />
       </div>
-      <div class="column" style="margin-left: 0;">
+      <!-- <div class="column" style="margin-left: 0;">
         <ParameterKnob p={paramConfig['R0']} bind:value={R0} bind:popupHTML />
         <div class="paneltext paneldesc">
           <i
@@ -651,6 +654,82 @@
             things on the chart).</i
           >
         </div>
+      </div> -->
+      <div class="column">
+        <ParameterKnob
+          p={paramConfig['days_from_incubation_to_infectious']}
+          bind:value={D_incbation}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['days_from_infectious_to_not_infectious']}
+          bind:value={D_infectious}
+          bind:popupHTML
+        />
+      </div>
+      <div class="column">
+        <ParameterKnob
+          p={paramConfig['days_in_hospital']}
+          bind:value={D_hospital}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['days_in_mild_recovering_state']}
+          bind:value={D_recovery_mild}
+          bind:popupHTML
+        />
+      </div>
+      <!-- <div class="column">
+        <ParameterKnob
+          p={paramConfig['hospitalization_rate']}
+          onChange={onChange_P_SEVERE}
+          value={P_SEVERE}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['fatality_rate']}
+          onChange={onChangeCFR}
+          value={CFR}
+          bind:popupHTML
+        />
+      </div>
+      <div class="column">
+        <ParameterKnob
+          p={paramConfig['icu_rate_from_hospitalized']}
+          bind:value={P_ICU}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['icu_capacity']}
+          bind:value={icuCapacity}
+          bind:popupHTML
+        />
+      </div> -->
+    {/if}
+  </div>
+</div>
+<!-- 
+<p class="center">
+  <b>Parameter configuration</b>
+</p> -->
+
+<div style="padding-bottom: 10px;">
+  <div class="row">
+    <h4>Infection Parameters</h4>
+  </div>
+  <div class="row">
+    {#if selectedModel === MODEL_GOH}
+      <div class="column">
+        <ParameterKnob
+          p={paramConfig['population']}
+          bind:value={N}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['initial_infections']}
+          bind:value={I0}
+          bind:popupHTML
+        />
       </div>
       <div class="column">
         <ParameterKnob
@@ -676,29 +755,49 @@
           bind:popupHTML
         />
       </div>
+    {/if}
+  </div>
+</div>
+
+<div style="padding-bottom: 10px;">
+  <div class="row">
+    <h4>Infection Parameters</h4>
+  </div>
+  <div class="row">
+    {#if selectedModel === MODEL_GOH}
       <div class="column">
         <ParameterKnob
-          p={paramConfig['hospitalization_rate']}
-          onChange={onChange_P_SEVERE}
-          value={P_SEVERE}
+          p={paramConfig['population']}
+          bind:value={N}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig['fatality_rate']}
-          onChange={onChangeCFR}
-          value={CFR}
+          p={paramConfig['initial_infections']}
+          bind:value={I0}
           bind:popupHTML
         />
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig['icu_rate_from_hospitalized']}
-          bind:value={P_ICU}
+          p={paramConfig['days_from_incubation_to_infectious']}
+          bind:value={D_incbation}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig['icu_capacity']}
-          bind:value={icuCapacity}
+          p={paramConfig['days_from_infectious_to_not_infectious']}
+          bind:value={D_infectious}
+          bind:popupHTML
+        />
+      </div>
+      <div class="column">
+        <ParameterKnob
+          p={paramConfig['days_in_hospital']}
+          bind:value={D_hospital}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['days_in_mild_recovering_state']}
+          bind:value={D_recovery_mild}
           bind:popupHTML
         />
       </div>
@@ -909,12 +1008,21 @@
   }
 
   header {
-    margin: 5rem 1rem;
+    margin: 3rem auto 5rem auto;
+    width: 1200px;
   }
 
   h2 {
     font-size: 40px;
     font-weight: 300;
+  }
+
+  h4 {
+    font-size: 18px;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    color: #555;
   }
 
   .center {
