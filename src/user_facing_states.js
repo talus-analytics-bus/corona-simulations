@@ -25,7 +25,9 @@ export function getDefaultStateMeta() {
       'tooltip_desc': 'Active mild and asymptomatic infections, excl. hosp & icu',
       'checkable': true,
       'checked': true,
-      'color': '#f0027f',
+      // 'color': '#f0027f',
+      // 'color': '#EE5623',
+      'color': '#F78C3F',
     },
     {
       'key': 'hospitalized',
@@ -33,7 +35,9 @@ export function getDefaultStateMeta() {
       'tooltip_desc': 'Active hospitalizations (excluding ICU)',
       'checkable': true,
       'checked': true,
-      'color': '#8da0cb'
+      // 'color': '#8da0cb'
+      // 'color': '#AA0707'
+      'color': '#C72A2A'
     },
     {
       'key': 'icu',
@@ -41,7 +45,9 @@ export function getDefaultStateMeta() {
       'tooltip_desc': 'Patients in intensive care, active',
       'checkable': true,
       'checked': true,
-      'color': '#386cb0',
+      // 'color': '#386cb0',
+      // 'color': '#5A0342',
+      'color': '#66034A',
     },
     {
       'key': 'recovered',
