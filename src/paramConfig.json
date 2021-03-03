@@ -166,7 +166,7 @@
         "longformDefaultValueJustification": ""
     },
     "beta_asymp": {
-        "description": "Inital transmission rate of asymptomatic cases (people per day)",
+        "description": "Inital transmission rate of asymptomatic cases <br/>(people per day)",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.4,
         "minValue": 0.001,
@@ -181,7 +181,7 @@
         "longformDefaultValueJustification": ""
     },
     "beta_mild": {
-        "description": "Initial transmission rate of mild cases (people per day)",
+        "description": "Initial transmission rate of mild cases <br/> (people per day)",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.4,
         "minValue": 0.001,
@@ -196,7 +196,7 @@
         "longformDefaultValueJustification": ""
     },
     "beta_hospitalized": {
-        "description": "Initial transmission rate of hospitalized cases (people per day)",
+        "description": "Initial transmission rate of hospitalized cases <br/> (people per day)",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.1,
         "minValue": 0.001,
@@ -211,7 +211,7 @@
         "longformDefaultValueJustification": ""
     },
     "beta_icu": {
-        "description": "Initial transmission rate of ICU patients (people per day)",
+        "description": "Initial transmission rate of ICU patients <br/> (people per day)",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.1,
         "minValue": 0.001,
