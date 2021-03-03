@@ -105,7 +105,7 @@
 
   // $: dt, console.log(dt)
 
-  $: policyRampDays = paramConfig.policyRampDays.defaultValue
+  $: policyRampDays = 0 // paramConfig.policyRampDays.defaultValue
   $: logisticRamp = true
 
   const onChange_P_SEVERE = e => {
@@ -705,13 +705,9 @@
   </div>
 {/if}
 
-<!-- Parameter Knobs -->
-<div style="padding-bottom: 10px;">
-  <div class="row">
-    <h4>Basic Parameters</h4>
-  </div>
-  <div class="row">
-    {#if selectedModel === MODEL_GOH}
+<Collapsible title="Basic Parameters" bind:collapsed defaultCollapsed={false}>
+  <div>
+    <div class="row">
       <div class="column">
         <ParameterKnob
           p={paramConfig['population']}
@@ -760,46 +756,13 @@
           bind:popupHTML
         />
       </div>
-      <!-- <div class="column">
-        <ParameterKnob
-          p={paramConfig['hospitalization_rate']}
-          onChange={onChange_P_SEVERE}
-          value={P_SEVERE}
-          bind:popupHTML
-        />
-        <ParameterKnob
-          p={paramConfig['fatality_rate']}
-          onChange={onChangeCFR}
-          value={CFR}
-          bind:popupHTML
-        />
-      </div>
-      <div class="column">
-        <ParameterKnob
-          p={paramConfig['hospitalized_cases_requiring_icu_care']}
-          bind:value={P_ICU}
-          bind:popupHTML
-        />
-        <ParameterKnob
-          p={paramConfig['icu_capacity']}
-          bind:value={icuCapacity}
-          bind:popupHTML
-        />
-      </div> -->
-    {/if}
+    </div>
   </div>
-</div>
-<!-- 
-<p class="center">
-  <b>Parameter configuration</b>
-</p> -->
+</Collapsible>
 
-<div style="padding-bottom: 10px;">
-  <div class="row">
-    <h4>Transmission Rates</h4>
-  </div>
-  <div class="row">
-    {#if selectedModel === MODEL_GOH}
+<Collapsible title="Transmission Rates" bind:collapsed defaultCollapsed={false}>
+  <div>
+    <div class="row">
       <div class="column">
         <ParameterKnob
           p={paramConfig['beta_mild']}
@@ -831,27 +794,18 @@
           symptomatic transmission rates and durations through each stage of the
           disease.
         </p>
-        <!-- <ParameterKnob
-          p={paramConfig['days_in_hospital']}
-          bind:value={D_hospital}
-          bind:popupHTML
-        /> -->
-        <!-- <ParameterKnob
-          p={paramConfig['days_in_mild_recovering_state']}
-          bind:value={D_recovery_mild}
-          bind:popupHTML
-        /> -->
       </div>
-    {/if}
+    </div>
   </div>
-</div>
+</Collapsible>
 
-<div style="padding-bottom: 10px;">
-  <div class="row">
-    <h4>Disease & Treatment Progression</h4>
-  </div>
-  <div class="row">
-    {#if selectedModel === MODEL_GOH}
+<Collapsible
+  title="Disease & Treatment Progression"
+  bind:collapsed
+  defaultCollapsed={false}
+>
+  <div>
+    <div class="row">
       <div class="column">
         <ParameterKnob
           p={paramConfig['hospitalization_rate']}
@@ -870,14 +824,14 @@
           bind:value={death_rate_for_critical}
           bind:popupHTML
         />
-        <ParameterKnob
+        <!-- <ParameterKnob
           p={paramConfig.policyRampDays}
           bind:value={policyRampDays}
           bind:popupHTML
         />
         <label
           ><input type="checkbox" bind:checked={logisticRamp} /> Use Logistic Ramp</label
-        >
+        > -->
       </div>
       <div class="column">
         <h5>
@@ -894,20 +848,12 @@
           are symptomatic, hospitalization rate, ICU Admission rate, and ICU
           fatality rate.
         </p>
-        <!-- <ParameterKnob
-          p={paramConfig['days_in_hospital']}
-          bind:value={D_hospital}
-          bind:popupHTML
-        /> -->
-        <!-- <ParameterKnob
-          p={paramConfig['days_in_mild_recovering_state']}
-          bind:value={D_recovery_mild}
-          bind:popupHTML
-        /> -->
       </div>
-    {/if}
+    </div>
   </div>
-</div>
+</Collapsible>
+
+<div class="bottomPadding" />
 
 <!-- {#each descriptions as [name, contents]}
   <Collapsible title={name} bind:collapsed defaultCollapsed={false}>
@@ -1148,15 +1094,32 @@
   }
 
   .row {
+    position: relative;
+    margin-top: 1rem;
+    padding-top: 2rem;
     margin: auto;
     display: flex;
-    width: 948px;
+    /* width: 948px; */
+    width: 1180px;
+    max-width: 90vw;
     font-size: 13px;
+  }
+  .row::before {
+    position: absolute;
+    content: '';
+    top: 1rem;
+    left: 0;
+    right: 0;
+    height: 1px;
+    width: 100%;
+    background-color: #ddd;
   }
 
   .column {
     flex: 158px;
-    padding: 0px 5px 5px 0px;
+    /* width: auto; */
+    /* flex-shrink: 1; */
+    padding: 0px 15px 15px 0px;
     margin: 0px 5px 5px 5px;
   }
 
@@ -1216,5 +1179,9 @@
       visibility: hidden;
       position: absolute;
     }
+  }
+
+  .bottomPadding {
+    height: 10rem;
   }
 </style>
