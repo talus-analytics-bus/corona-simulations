@@ -1,6 +1,32 @@
 
-const getInitial = ({ days_to_model, population, exposed }) => {
-    const initial = { days_to_model, population, exposed }
+const getInitial = ({
+    days_to_model,
+    population,
+    exposed,
+    presymptomatic_period,
+    duration_asymp_infections,
+    percentage_of_cases_asymptomatic,
+    duration_mild_infections,
+    hospital_time_recovery,
+    icu_time_death,
+    beta_mild,
+    beta_asymp,
+}) => {
+
+    console.log(beta_asymp)
+
+    const initial = {
+        days_to_model,
+        population,
+        exposed,
+        presymptomatic_period,
+        duration_asymp_infections,
+        duration_mild_infections,
+        hospital_time_recovery,
+        icu_time_death,
+        beta_mild,
+        beta_asymp,
+    }
 
     initial.mild = 0
     initial.hospitalized = 0
@@ -36,22 +62,22 @@ const getInitial = ({ days_to_model, population, exposed }) => {
     // expoosed = exposed_infected_ratio * mild
 
     // Time before exposed are infectious (days)
-    initial.presymptomatic_period = 6
+    // initial.presymptomatic_period = 6
 
     // Time mildly infected people stay sick before
     // hospitalization or recovery (days)
-    initial.duration_mild_infections = 6
+    // initial.duration_mild_infections = days_from_infectious_to_not_infectious //6 
 
     // Time asymptomatically infected people stay
     // infected before recovery (days)
-    initial.duration_asymp_infections = 6
+    // initial.duration_asymp_infections = 6
 
     // Duration of hospitalization before icu or
     // recovery (days)
-    initial.hospital_time_recovery = 11
+    // initial.hospital_time_recovery = 11
 
     // Time from ICU admission to death (days)
-    initial.icu_time_death = 8
+    // initial.icu_time_death = days_in_icu
 
 
     // BETA: transmission rate (new cases per day).
@@ -66,7 +92,7 @@ const getInitial = ({ days_to_model, population, exposed }) => {
     // Current: Calculated based on observed doubling
     // rates
     //initial.beta_asymp = 0.3 + ((initial.observed_daily_growth_rate - 1.09) / 0.02) * 0.05
-    initial.beta_asymp = 0.4
+    // initial.beta_asymp = 0.4
     //
     // Transmission rate of infected people with mild
     // symptoms [I_1] (new cases per day)
@@ -75,7 +101,7 @@ const getInitial = ({ days_to_model, population, exposed }) => {
     // Current: Calculated based on observed doubling
     // rates
     //initial.beta_mild = 0.3 + ((initial.observed_daily_growth_rate - 1.09) / 0.02) * 0.05
-    initial.beta_mild = 0.4
+    // initial.beta_mild = 0.4
     //
     // Transmission rate of infected people with severe
     // symptoms [I_2] (new cases per day)
@@ -94,7 +120,7 @@ const getInitial = ({ days_to_model, population, exposed }) => {
     // Pecentage of asymptomatic, infectious [A] people
     // out of all those who are infected
     // make 0 to remove this stock
-    initial.percent_asymp = 0.3
+    initial.percent_asymp = percentage_of_cases_asymptomatic
 
     initial.percent_infectious_symptomatic = 1 - initial.percent_asymp
 

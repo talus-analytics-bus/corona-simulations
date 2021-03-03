@@ -30,7 +30,7 @@
         "longformDefaultValueJustification": ""
     },
     "days_from_incubation_to_infectious": {
-        "description": "Length of mild case incubation period {Tinc}",
+        "description": "Length of mild case incubation period",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 6.0,
         "minValue": 0.15,
@@ -89,7 +89,7 @@
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
-    "days_in_icu": {
+    "icu_time_death": {
         "description": "Length of ICU stay",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 8,
@@ -160,7 +160,7 @@
         "unitsDescriptor": "%",
         "isInteger": false,
         "isPercentage": true,
-        "longformDescription": "Percentage of all infectious people who do not show symptoms. If this is set to zero, the model will not have any effects from asymptomatic people.",
+        "longformDescription": "Percentage of all infectious people who do not show symptoms. If this is set to zero, asymptomatic cases will be removed from the model.",
         "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
