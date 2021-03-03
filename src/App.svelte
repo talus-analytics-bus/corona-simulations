@@ -106,6 +106,7 @@
   // $: dt, console.log(dt)
 
   $: policyRampDays = paramConfig.policyRampDays.defaultValue
+  $: logisticRamp = true
 
   const onChange_P_SEVERE = e => {
     const eventValue = Number(e.target.value)
@@ -215,7 +216,8 @@
     hospitalized_cases_requiring_icu_care,
     hospitalization_rate,
     death_rate_for_critical,
-    policyRampDays
+    policyRampDays,
+    logisticRamp
 
     // D_infectious,
     // D_recovery_mild,
@@ -266,7 +268,7 @@
         hospitalization_rate,
         death_rate_for_critical,
         policyRampDays,
-        logisticRamp: true,
+        logisticRamp,
       })
       console.log(initial)
 
@@ -353,7 +355,8 @@
     hospitalized_cases_requiring_icu_care,
     hospitalization_rate,
     death_rate_for_critical,
-    policyRampDays
+    policyRampDays,
+    logisticRamp
     // D_infectious,
     // D_recovery_mild,
     // D_hospital,
@@ -872,6 +875,9 @@
           bind:value={policyRampDays}
           bind:popupHTML
         />
+        <label
+          ><input type="checkbox" bind:checked={logisticRamp} /> Use Logistic Ramp</label
+        >
       </div>
       <div class="column">
         <h5>
