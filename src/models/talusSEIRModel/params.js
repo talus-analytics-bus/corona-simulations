@@ -13,23 +13,24 @@ const getEpiParams = model_run => {
 
     eP.alpha = 1 / model_run.presymptomatic_period
 
+    eP.beta_A = model_run.beta_asymp / eP.N
+
     eP.beta = [
         0,
         model_run.beta_mild / eP.N,
         model_run.beta_hospitalized / eP.N,
         model_run.beta_icu / eP.N,
         // TODO move beta.A to model params
-        model_run.beta_mild / eP.N,
+        eP.beta_A,
     ]
 
     eP.beta_mild = model_run.beta_mild
     eP.beta_asymp = model_run.beta_asymp
 
-    eP.beta_A = model_run.beta_mild / eP.N
-
     // have to calculate these in order and then put them into arrays
     eP.gamma_0 = 0
     eP.gamma_1 = (1 / model_run.duration_mild_infections) * (1 - model_run.hospitalization_rate)
+
     eP.rho_0 = 0
     eP.rho_1 = (1 / model_run.duration_mild_infections) - eP.gamma_1
     eP.rho_2 = (1 / model_run.hospital_time_recovery) * (eP.fraction_critical / model_run.hospitalization_rate)
@@ -40,8 +41,7 @@ const getEpiParams = model_run => {
 
     eP.gamma_3 = (1 / model_run.icu_time_death) - eP.mu
 
-    // TODO move gamma_a to model params
-    eP.gamma_A = eP.gamma_1
+    eP.gamma_A = 1 / model_run.duration_asymp_infections
 
     eP.gamma = [
         eP.gamma_0,
