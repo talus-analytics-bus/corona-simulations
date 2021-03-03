@@ -52,21 +52,23 @@
   function getDay(bar) {
     return Math.round(indexToTime(bar))
   }
+
+  $: P_all, console.log(P_all)
 </script>
 
 <div
   class="legendtext"
-  style="position:absolute; left:-110px; top:-155px; width:230px; height: 100px; font-size: 13px; line-height:16px; font-weight: normal; text-align: center; background-color: white; z-index: 10000;"
+  style="position:absolute; left:-110px; top:-155px; width:300px; height: 100px; font-size: 13px; line-height:16px; font-weight: normal; text-align: center; background-color: white; z-index: 10000;"
 >
   <b class="outcomeHeader">Scenario Results</b>
   <span style="text-align: left;">
     <ul class="outcomeList">
       <li>
-        {formatCount(P_all[P_all.length - 2]['fatalities'])} fatalities in first
+        {formatCount(P_all[P_all.length - 1]['fatalities'])} fatalities in first
         {P_all.length} days.
       </li>
       {#if peakICUDay < P_all.length - 50}
-        <li>Peak ICU on {peakICUDay}.</li>
+        <li>Peak ICU on day {peakICUDay}.</li>
         <li>{peakICUCount} ICU patients at peak.</li>
       {:else}
         <li>Peak possibly not reached!</li>
@@ -170,5 +172,7 @@
 
   .outcomeHeader {
     font-size: 1.1em;
+    position: relative;
+    left: -26px;
   }
 </style>
