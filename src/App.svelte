@@ -54,23 +54,49 @@
 
   // let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
 
+  // Initial Setup
   $: N = paramConfig['population'].defaultValue
   $: I0 = paramConfig['initial_infections'].defaultValue
+  $: percentage_of_cases_asymptomatic =
+    paramConfig['percentage_of_cases_asymptomatic'].defaultValue
+
+  // Durations
+  // Incubation
   $: D_incbation =
     paramConfig['days_from_incubation_to_infectious'].defaultValue
-
-  $: D_infectious =
+  // Mild Infections
+  $: days_from_infectious_to_not_infectious =
     paramConfig['days_from_infectious_to_not_infectious'].defaultValue
-
-  $: D_recovery_mild = paramConfig['days_in_mild_recovering_state'].defaultValue
-
+  // asymptomatic
+  $: asymptomatic_infection_duration =
+    paramConfig['asymptomatic_infection_duration'].defaultValue
+  // hospitalized duration
   $: D_hospital = paramConfig['days_in_hospital'].defaultValue
-  $: CFR = paramConfig['fatality_rate'].defaultValue
+  // ICU duration
+  $: icu_time_death = paramConfig['icu_time_death'].defaultValue
+
+  // Class transition rates
+  // mild to hospitalized
+  $: hospitalization_rate = paramConfig['hospitalization_rate'].defaultValue
+  // hospital to icu
+  $: icu_rate_from_hospitalized =
+    paramConfig['icu_rate_from_hospitalized'].defaultValue
+  // icu to dead
+  $: death_rate_from_icu = paramConfig['death_rate_from_icu'].defaultValue
+
+  // Transmission
+  // Mild Infection
+  $: beta_mild = paramConfig['beta_mild'].defaultValue
+  // Asymptomatic
+  $: beta_asymp = paramConfig['beta_asymp'].defaultValue
+  // Hospitalized
+  $: beta_hospitalized = paramConfig['beta_hospitalized'].defaultValue
+  // ICU
+  $: beta_icu = paramConfig['beta_icu'].defaultValue
+
   $: Time = 220
   $: Xmax = 110000
   $: dt = 8
-  $: P_SEVERE = paramConfig['hospitalization_rate'].defaultValue
-  $: P_ICU = paramConfig['icu_rate_from_hospitalized'].defaultValue
   $: icuCapacity = paramConfig['icu_capacity'].defaultValue
 
   $: dt, console.log(dt)
@@ -78,20 +104,20 @@
   const onChange_P_SEVERE = e => {
     const eventValue = Number(e.target.value)
     if (eventValue > CFR) {
-      P_SEVERE = eventValue
+      // P_SEVERE = eventValue
     } else {
-      P_SEVERE = 0 // to force update
-      setTimeout(() => (P_SEVERE = CFR), 0)
+      // P_SEVERE = 0 // to force update
+      // setTimeout(() => (P_SEVERE = CFR), 0)
     }
   }
 
   const onChangeCFR = e => {
     const eventValue = Number(e.target.value)
     const change = eventValue - CFR
-    const newValue = P_SEVERE + change
+    // const newValue = P_SEVERE + change
     const max = paramConfig['hospitalization_rate'].maxValue
 
-    P_SEVERE = newValue < max ? newValue : max
+    // P_SEVERE = newValue < max ? newValue : max
     CFR = eventValue
   }
 
@@ -172,12 +198,21 @@
     I0,
     R0,
     D_incbation,
-    D_infectious,
-    D_recovery_mild,
-    D_hospital,
-    P_SEVERE,
-    P_ICU,
-    CFR
+    percentage_of_cases_asymptomatic,
+    duration_asymp_infections,
+    days_from_infectious_to_not_infectious,
+    hospital_time_recovery,
+    icu_time_death,
+    beta_mild,
+    beta_asymp,
+    beta_hospitalized
+
+    // D_infectious,
+    // D_recovery_mild,
+    // D_hospital,
+    // P_SEVERE,
+    // P_ICU,
+    // CFR
   ) {
     if (selectedModel === MODEL_GOH) {
       // var start = performance.now()
@@ -201,10 +236,21 @@
       // console.log(actionMarkers[selectedModel])
 
       const initial = getInitial({
-        days_to_model: 800,
-        population: 1000,
-        exposed: 5,
+        // days_to_model: 101 * dt,
+        days_to_model: 101 * 8,
+        population: N,
+        exposed: I0,
+        percentage_of_cases_asymptomatic,
+        presymptomatic_period: D_incbation,
+        duration_mild_infections: days_from_infectious_to_not_infectious,
+        duration_asymp_infections: asymptomatic_infection_duration,
+        icu_time_death,
+        hospital_time_recovery: D_hospital,
+        beta_mild,
+        beta_asymp,
+        beta_hospitalized,
       })
+      console.log(initial)
 
       const epiParams = getEpiParams(initial)
 
@@ -215,26 +261,9 @@
 
       const talusSolution = talusSEIR({
         interventions,
-        // interventions: [
-        //   { day: 10, effect: -0.7 },
-        //   { day: 50, effect: 0.8 },
-        //   { day: 60, effect: -0.2 },
-        //   { day: 150, effect: 0.6 },
-        // ],
-        // interventions: [
-        //   new ActionMarkerData(10, 'one', -0.7),
-        //   new ActionMarkerData(50, 'two', 0.8),
-        //   new ActionMarkerData(60, 'three', -0.2),
-        //   new ActionMarkerData(150, 'four', 0.6),
-        // ],
         epiParams,
         initial,
       })
-
-      // console.log('goh')
-      // console.log(solution)
-      // console.log('talus')
-      // console.log(talusSolution)
 
       // var end = performance.now()
       // var duration = end - start
@@ -272,6 +301,8 @@
   $: actionMarkers = actionMarkerHelper()
   $: stateMeta = getDefaultStateMeta()
 
+  $: P_SEVERE = paramConfig['hospitalization_rate'].defaultValue
+  $: P_ICU = paramConfig['icu_rate_from_hospitalized'].defaultValue
   $: P_all_future = get_solution(
     selectedModel,
     P_all_fetched,
@@ -282,12 +313,20 @@
     I0,
     R0,
     D_incbation,
-    D_infectious,
-    D_recovery_mild,
+    percentage_of_cases_asymptomatic,
+    asymptomatic_infection_duration,
+    days_from_infectious_to_not_infectious,
     D_hospital,
-    P_SEVERE,
-    P_ICU,
-    CFR
+    icu_time_death,
+    beta_mild,
+    beta_asymp,
+    beta_hospitalized
+    // D_infectious,
+    // D_recovery_mild,
+    // D_hospital,
+    // P_SEVERE,
+    // P_ICU,
+    // CFR
   )
   // $: P_all            = with_enough_days(P_all_historical.concat(P_all_future), dt)
   $: P_all = with_enough_days(P_all_future, dt)
@@ -429,8 +468,31 @@
 <link rel="stylesheet" href="katex.css" />
 
 <header>
-  <h2>Talus Analytics SEIR Model</h2>
-  <h3>SEIR Model with Hospitalizations, ICU, and Asymptomatic infections</h3>
+  <div class="titlesection">
+    <h2>Talus Analytics SEIR Model</h2>
+    <h3>SEIR Model with Hospitalizations, ICU, and Asymptomatic infections</h3>
+  </div>
+  <!-- <div class="legendtext" style="">
+    <b class="outcomeHeader">Scenario Results</b>
+    <span style="text-align: left;">
+      <ul class="outcomeList">
+        <li>
+          {P_all[P_all.length - 2]['fatalities']} fatalities in first
+          {P_all.length} days.
+        </li>
+        {#if peakICUDay < P_all.length - 50}
+          <li>Peak ICU on {peakICUDay}.</li>
+          <li>{peakICUCount} ICU patients at peak.</li>
+        {:else}
+          <li>Peak possibly not reached!</li>
+        {/if}
+        <li>
+          {Math.round((100 * P_all[P_all.length - 1]['susceptible']) / N)}%
+          remain susceptible.
+        </li>
+      </ul>
+    </span>
+  </div> -->
 </header>
 
 <div class="mobileWarning">
@@ -442,28 +504,8 @@
 
 <div class="chart" style="display: flex; max-width: 1200px">
   <div style="flex: 0 0 300px; width:300px;">
-    <div style="height: 50px;">
-      <!-- Deprecated scenario dropdown selector. -->
-      <!-- {#if display_scenario_dropdown}
-        <div
-          class="legendtext"
-          style="font-size: 14px; line-height:16px; font-weight: bold; color: #777;"
-        >
-          Select scenario and model:
-        </div>
-        <select id="model-selection" bind:value={selectedModel}>
-          <option value={MODEL_GOH}>Finland | Goh's SEIR ODE (live)</option>
-          <option
-            value={MODEL_CUSTOM}
-            disabled={customScenarioGUID ? false : true}
-            >Custom scenario (precomputed)</option
-          >
-        </select>
-      {/if} -->
-    </div>
-
     <!-- ChartCompanion (scenario outcome and highlighted day, left side of chart). -->
-    <div style="position:relative; top:100px; right:-115px">
+    <div style="position:relative; top: 100px; right:-115px">
       <ChartCompanion
         bind:stateMeta
         {N}
@@ -646,15 +688,6 @@
           bind:popupHTML
         />
       </div>
-      <!-- <div class="column" style="margin-left: 0;">
-        <ParameterKnob p={paramConfig['R0']} bind:value={R0} bind:popupHTML />
-        <div class="paneltext paneldesc">
-          <i
-            >Please note that R0 is affected by action markers (those vertical
-            things on the chart).</i
-          >
-        </div>
-      </div> -->
       <div class="column">
         <ParameterKnob
           p={paramConfig['days_from_incubation_to_infectious']}
@@ -663,7 +696,19 @@
         />
         <ParameterKnob
           p={paramConfig['days_from_infectious_to_not_infectious']}
-          bind:value={D_infectious}
+          bind:value={days_from_infectious_to_not_infectious}
+          bind:popupHTML
+        />
+      </div>
+      <div class="column">
+        <ParameterKnob
+          p={paramConfig['percentage_of_cases_asymptomatic']}
+          bind:value={percentage_of_cases_asymptomatic}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['asymptomatic_infection_duration']}
+          bind:value={asymptomatic_infection_duration}
           bind:popupHTML
         />
       </div>
@@ -674,8 +719,8 @@
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig['days_in_mild_recovering_state']}
-          bind:value={D_recovery_mild}
+          p={paramConfig['icu_time_death']}
+          bind:value={icu_time_death}
           bind:popupHTML
         />
       </div>
@@ -715,19 +760,19 @@
 
 <div style="padding-bottom: 10px;">
   <div class="row">
-    <h4>Infection Parameters</h4>
+    <h4>Transmission Rates</h4>
   </div>
   <div class="row">
     {#if selectedModel === MODEL_GOH}
       <div class="column">
         <ParameterKnob
-          p={paramConfig['population']}
-          bind:value={N}
+          p={paramConfig['beta_mild']}
+          bind:value={beta_mild}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig['initial_infections']}
-          bind:value={I0}
+          p={paramConfig['beta_asymp']}
+          bind:value={beta_asymp}
           bind:popupHTML
         />
       </div>
@@ -737,23 +782,23 @@
           bind:value={D_incbation}
           bind:popupHTML
         />
-        <ParameterKnob
+        <!-- <ParameterKnob
           p={paramConfig['days_from_infectious_to_not_infectious']}
           bind:value={D_infectious}
           bind:popupHTML
-        />
+        /> -->
       </div>
       <div class="column">
-        <ParameterKnob
+        <!-- <ParameterKnob
           p={paramConfig['days_in_hospital']}
           bind:value={D_hospital}
           bind:popupHTML
-        />
-        <ParameterKnob
+        /> -->
+        <!-- <ParameterKnob
           p={paramConfig['days_in_mild_recovering_state']}
           bind:value={D_recovery_mild}
           bind:popupHTML
-        />
+        /> -->
       </div>
     {/if}
   </div>
@@ -783,11 +828,11 @@
           bind:value={D_incbation}
           bind:popupHTML
         />
-        <ParameterKnob
+        <!-- <ParameterKnob
           p={paramConfig['days_from_infectious_to_not_infectious']}
           bind:value={D_infectious}
           bind:popupHTML
-        />
+        /> -->
       </div>
       <div class="column">
         <ParameterKnob
@@ -795,11 +840,11 @@
           bind:value={D_hospital}
           bind:popupHTML
         />
-        <ParameterKnob
+        <!-- <ParameterKnob
           p={paramConfig['days_in_mild_recovering_state']}
           bind:value={D_recovery_mild}
           bind:popupHTML
-        />
+        /> -->
       </div>
     {/if}
   </div>
@@ -1008,8 +1053,15 @@
   }
 
   header {
-    margin: 3rem auto 5rem auto;
-    width: 1200px;
+    margin: 3rem auto 6rem auto;
+    max-width: 1200px;
+    display: flex;
+    align-items: flex-end;
+    color: #555;
+  }
+
+  .titlesection {
+    flex-grow: 1;
   }
 
   h2 {
