@@ -84,7 +84,7 @@
         "unitsDescriptor": "days",
         "isInteger": false,
         "isPercentage": false,
-        "longformDescription": "The average number of days a hospitalized patient stays in the hospital, before recovering or moving to the ICU",
+        "longformDescription": "The average number of days a hospitalized patient stays in the hospital, before recovering or moving to the ICU.",
         "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
@@ -99,7 +99,7 @@
         "unitsDescriptor": "days",
         "isInteger": false,
         "isPercentage": false,
-        "longformDescription": "Average number of days in the ICU, before recovering or passing away",
+        "longformDescription": "Average number of days in the ICU, before recovering or passing away.",
         "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
