@@ -168,8 +168,8 @@ const talusSEIR = ({
 
         days.push(
             new UFState(
-                // initial.population - (res.asymp + res.mild + res.hospitalized + res.icu) - res.recovered - res.dead, // suscep
-                0, // susceptible 
+                initial.population - (res.asymp + res.mild + res.hospitalized + res.icu) - res.recovered - res.dead, // suscep
+                // 0, // susceptible 
                 // res.asymp + res.mild + res.hospitalized + res.icu, // infected
                 res.asymp, // infected
                 res.mild,
