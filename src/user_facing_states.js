@@ -1,6 +1,7 @@
 export class UFState {
-  constructor(susceptible, inf, hospitalized, icu, recovered, fatalities) {
+  constructor(susceptible, asymptomatic, inf, hospitalized, icu, recovered, fatalities) {
     this['susceptible'] = susceptible
+    this['asymptomatic'] = asymptomatic
     this['infected'] = inf
     this['hospitalized'] = hospitalized
     this['icu'] = icu
@@ -20,6 +21,14 @@ export function getDefaultStateMeta() {
       'color': '#c8ffba',
     },
     {
+      'key': 'asymptomatic',
+      'tooltip_title': 'Asymptomatic',
+      'tooltip_desc': 'Active asymptomatic infections',
+      'checkable': true,
+      'checked': true,
+      'color': '#ffe6ab',
+    },
+    {
       'key': 'infected',
       'tooltip_title': 'Infected',
       'tooltip_desc': 'Active mild and asymptomatic infections, excl. hosp & icu',
@@ -27,7 +36,7 @@ export function getDefaultStateMeta() {
       'checked': true,
       // 'color': '#f0027f',
       // 'color': '#EE5623',
-      'color': '#F78C3F',
+      'color': '#f2a56d',
     },
     {
       'key': 'hospitalized',
@@ -37,7 +46,7 @@ export function getDefaultStateMeta() {
       'checked': true,
       // 'color': '#8da0cb'
       // 'color': '#AA0707'
-      'color': '#C72A2A'
+      'color': '#d65e5e'
     },
     {
       'key': 'icu',
@@ -63,7 +72,7 @@ export function getDefaultStateMeta() {
       'tooltip_desc': 'Number of deaths, cumulative',
       'checkable': true,
       'checked': true,
-      'color': "#000000",
+      'color': "#aaa",
     },
   ]
 }
