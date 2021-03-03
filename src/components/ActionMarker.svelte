@@ -196,7 +196,7 @@
             class="paneltitle unselectable"
             style="top:0px; position: relative; text-align: left; white-space: nowrap;"
           >
-            {actionMarkerData[AM_NAME]} on {displayDate}
+            {actionMarkerData[AM_NAME]} on day {displayDate}
           </div>
 
           {#if actionMarkerData.isConfigurable()}

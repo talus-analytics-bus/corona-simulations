@@ -16,11 +16,15 @@ const getInitial = ({
     hospitalized_cases_requiring_icu_care,
     hospitalization_rate,
     death_rate_for_critical,
+    policyRampDays,
+    logisticRamp,
 }) => {
 
     const initial = {
         days_to_model,
         stepDays: 1,
+        policyRampDays,
+        logisticRamp,
         population,
         exposed,
         presymptomatic_period,

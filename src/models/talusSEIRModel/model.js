@@ -2,30 +2,29 @@ import { integrationMethods, integrate, sum, dotProduct } from './helpers'
 
 import { UFState } from '../../user_facing_states.js';
 
-// percentage of the total policy
-// effectiveness for the first n days 
-// of the policy. 
-const policyRamp = [
-    0.0024726231566347743,
-    0.0066928509242848554,
-    0.01798620996209156,
-    0.04742587317756678,
-    0.11920292202211755,
-    0.2689414213699951,
-    0.5,
-    0.7310585786300049,
-    0.8807970779778823,
-    0.9525741268224334,
-    0.9820137900379085,
-    0.9933071490757153,
-    0.9975273768433653,
-    0.9990889488055994,
-]
+
+
+// [
+//     0.0024726231566347743,
+//     0.0066928509242848554,
+//     0.01798620996209156,
+//     0.04742587317756678,
+//     0.11920292202211755,
+//     0.2689414213699951,
+//     0.5,
+//     0.7310585786300049,
+//     0.8807970779778823,
+//     0.9525741268224334,
+//     0.9820137900379085,
+//     0.9933071490757153,
+//     0.9975273768433653,
+//     0.9990889488055994,
+// ]
 
 // calculate the cumulative effects of each 
 // each policy on a given day, accounting 
 // for the policy effectiveness ramp up
-const getInterventionEffect = (t, interventions) => {
+const getInterventionEffect = (t, interventions, policyRamp) => {
     let interventionEffect = 1
     interventions.forEach(inter => {
         if (t >= inter.day) {
@@ -43,8 +42,8 @@ const getInterventionEffect = (t, interventions) => {
 
 // get Rt for a given day, initial conditions (for calculating
 // susceptible population) and set of epi parameters
-const getRt = (step, day, initial, eP, interventions) => Math.max(initial.population - sum(day), 0) * (
-    ((eP.beta[1] * getInterventionEffect(step, interventions)) / (eP.rho[1] + eP.gamma[1]))
+const getRt = (step, day, initial, eP, interventions, policyRamp) => Math.max(initial.population - sum(day), 0) * (
+    ((eP.beta[1] * getInterventionEffect(step, interventions, policyRamp)) / (eP.rho[1] + eP.gamma[1]))
     + (eP.rho[1] / (eP.rho[1] + eP.gamma[1]))
     * (eP.beta[2] / (eP.rho[2] + eP.gamma[2]) + (eP.rho[2] / (eP.rho[2] + eP.gamma[2])) * (eP.beta[3] / (eP.mu + eP.gamma[3])))
 )
@@ -73,7 +72,7 @@ const talusSEIR = ({
 
         const I_all = [I1, I2, I3]
 
-        const interventionEffect = getInterventionEffect(t, interventions)
+        const interventionEffect = getInterventionEffect(t, interventions, policyRamp)
 
         const beta_mild = eP.beta[1] * interventionEffect
         const beta_hospitalized = eP.beta[2]
@@ -131,7 +130,21 @@ const talusSEIR = ({
         initial.asymp,
     ]
 
-    const r0 = getRt(0, day, initial, eP, interventions)
+    // percentage of the total policy
+    // effectiveness for the first n days 
+    // of the policy. 
+    const policyRamp = []
+    for (let step = 0; step < initial.policyRampDays; step++) {
+        if (initial.logisticRamp) {
+            policyRamp.push(1 / (1 + Math.exp(-1 * (step - initial.policyRampDays / 2))))
+        } else {
+            policyRamp.push(step / initial.policyRampDays)
+        }
+    }
+
+    console.log(policyRamp)
+
+    const r0 = getRt(0, day, initial, eP, interventions, policyRamp)
 
     // loop through each step of the model 
     for (let step = 0; step <= initial.days_to_model; step += initial.stepDays) {

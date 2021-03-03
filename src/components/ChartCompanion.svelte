@@ -53,7 +53,7 @@
     return Math.round(indexToTime(bar))
   }
 
-  $: P_all, console.log(P_all)
+  // $: P_all, console.log(P_all)
 </script>
 
 <div

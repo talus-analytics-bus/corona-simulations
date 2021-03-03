@@ -20,10 +20,9 @@
   // Custom utilities
   import { ActionMarkerData, AM_DAY } from './action_marker_data.js'
   import { UFState, getDefaultStateMeta } from './user_facing_states.js'
-  import {
-    get_solution_from_gohs_seir_ode,
-    goh_default_action_markers,
-  } from './models/gohs_seir_ode.js'
+  // import // get_solution_from_gohs_seir_ode,
+  // // goh_default_action_markers,
+  // './models/gohs_seir_ode.js'
 
   import { MODEL_GOH, MODEL_CUSTOM } from './utils.js'
   import { math_inline } from './utils.js'
@@ -104,7 +103,9 @@
   $: dt = 8
   $: icuCapacity = paramConfig['icu_capacity'].defaultValue
 
-  $: dt, console.log(dt)
+  // $: dt, console.log(dt)
+
+  $: policyRampDays = paramConfig.policyRampDays.defaultValue
 
   const onChange_P_SEVERE = e => {
     const eventValue = Number(e.target.value)
@@ -213,7 +214,8 @@
     beta_icu,
     hospitalized_cases_requiring_icu_care,
     hospitalization_rate,
-    death_rate_for_critical
+    death_rate_for_critical,
+    policyRampDays
 
     // D_infectious,
     // D_recovery_mild,
@@ -263,6 +265,8 @@
         hospitalized_cases_requiring_icu_care,
         hospitalization_rate,
         death_rate_for_critical,
+        policyRampDays,
+        logisticRamp: true,
       })
       console.log(initial)
 
@@ -302,7 +306,12 @@
     const m = actionMarkers || {}
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
-      m[MODEL_GOH] = goh_default_action_markers()
+      m[MODEL_GOH] = [
+        new ActionMarkerData(110, 'Initial Lockdown', -0.7),
+        new ActionMarkerData(218, 'Reopening', 0.8),
+        new ActionMarkerData(251, 'Renewed Caution', -0.2),
+        new ActionMarkerData(512, 'Tired of Lockdown', 0.3),
+      ]
     }
     return m
   }
@@ -343,7 +352,8 @@
     beta_icu,
     hospitalized_cases_requiring_icu_care,
     hospitalization_rate,
-    death_rate_for_critical
+    death_rate_for_critical,
+    policyRampDays
     // D_infectious,
     // D_recovery_mild,
     // D_hospital,
@@ -857,11 +867,11 @@
           bind:value={death_rate_for_critical}
           bind:popupHTML
         />
-        <!-- <ParameterKnob
-          p={paramConfig['icu_capacity']}
-          bind:value={icuCapacity}
+        <ParameterKnob
+          p={paramConfig.policyRampDays}
+          bind:value={policyRampDays}
           bind:popupHTML
-        /> -->
+        />
       </div>
       <div class="column">
         <h5>
