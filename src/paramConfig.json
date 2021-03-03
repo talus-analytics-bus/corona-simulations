@@ -9,7 +9,7 @@
         "unitsDescriptor": "people",
         "isInteger": true,
         "isPercentage": false,
-        "longformDescription": "Size of initial population'.",
+        "longformDescription": "Size of initial population.",
         "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
@@ -24,13 +24,13 @@
         "unitsDescriptor": "cases",
         "isInteger": true,
         "isPercentage": false,
-        "longformDescription": "Number of initial infections'.",
+        "longformDescription": "Number of initial infections.",
         "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
     "days_from_incubation_to_infectious": {
-        "description": "Length of mild case incubation period",
+        "description": "Incubation Period Duration",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 6.0,
         "minValue": 0.15,
@@ -39,13 +39,13 @@
         "unitsDescriptor": "days",
         "isInteger": false,
         "isPercentage": false,
-        "longformDescription": "In our model, incubation period refers to the time between being infected and becoming infectious.",
+        "longformDescription": "The average number of days between a patient being infected and becoming infectious.",
         "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
     "days_from_infectious_to_not_infectious": {
-        "description": "Duration a mildly ill patient is infectious",
+        "description": "Mild Illness Infectiousness Duration",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 6,
         "minValue": 1,
@@ -60,7 +60,7 @@
         "longformDefaultValueJustification": ""
     },
     "asymptomatic_infection_duration": {
-        "description": "Duration an asymptomatic person is infectious",
+        "description": "Asymptomatic Case Infectiousness Duration",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 6,
         "minValue": 1,
@@ -69,13 +69,13 @@
         "unitsDescriptor": "days",
         "isInteger": false,
         "isPercentage": false,
-        "longformDescription": "Number of days an asymptomatic person is infectious",
-        "longformDoNotConfuseWith": "People who do not show symptoms may have different behavior because they most likely do not know they are infectious, so they may not take measures to isolate or otherwise reduce contact with susceptible people.",
+        "longformDescription": "The average number of days an asymptomatic person will be infectious. People who do not show symptoms may have different behavior because they most likely do not know they are infectious, so they may not take measures to isolate or otherwise reduce contact with susceptible people.",
+        "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
     "days_in_hospital": {
-        "description": "Length of hospital stay",
+        "description": "Average Hospital Duration",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 11,
         "minValue": 0.1,
@@ -84,13 +84,13 @@
         "unitsDescriptor": "days",
         "isInteger": false,
         "isPercentage": false,
-        "longformDescription": "Average number of days in hospital",
-        "longformDoNotConfuseWith": "The number of days a hospitalized patient stays in the hospital on average, before recovering or moving to the ICU",
+        "longformDescription": "The average number of days a hospitalized patient stays in the hospital, before recovering or moving to the ICU",
+        "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
     "icu_time_death": {
-        "description": "Length of ICU stay",
+        "description": "Average ICU Duration",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 8,
         "minValue": 0.1,
@@ -100,7 +100,7 @@
         "isInteger": false,
         "isPercentage": false,
         "longformDescription": "Average number of days in the ICU, before recovering or passing away",
-        "longformDoNotConfuseWith": "The number of days a hospitalized patient stays in the hospital on average, before recovering or moving to the ICU.",
+        "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
@@ -115,8 +115,8 @@
         "unitsDescriptor": "%",
         "isInteger": false,
         "isPercentage": true,
-        "longformDescription": "Percentage of mild cases who move to the hospital.",
-        "longformDoNotConfuseWith": "The percentage of mild infections who move to the hospital, where they have a different recovery rate, recovery duration, and transmission dynamics (they are still infectious, just at a separate rate). From the hospital people can either recover or go to the ICU. Note that asymptomatic people do not go to the hospital.",
+        "longformDescription": "The percentage of mild infections who move to the hospital, where they have a different recovery rate, recovery duration, and transmission dynamics (they are still infectious, just at a separate rate). From the hospital people can either recover or go to the ICU. Note that asymptomatic people do not go to the hospital.",
+        "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
@@ -130,8 +130,8 @@
         "unitsDescriptor": "%",
         "isInteger": false,
         "isPercentage": true,
-        "longformDescription": "Percentage of hospitalized patients who go to the ICU.",
-        "longformDoNotConfuseWith": "The percentage of hospitalized patients who go to the ICU, where they have a different recovery rate, recovery duration, and transmission dynamics (they are still infectious, just at a separate rate). Note that infected people always go to the hospital before being admitted to the ICU.",
+        "longformDescription": "The percentage of hospitalized patients who go to the ICU, where they have a different recovery rate, recovery duration, and transmission dynamics (they are still infectious, just at a separate rate). Note that infected people always go to the hospital before being admitted to the ICU.",
+        "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
@@ -145,13 +145,13 @@
         "unitsDescriptor": "%",
         "isInteger": false,
         "isPercentage": true,
-        "longformDescription": "Percentage of ICU patients who do not recover.",
-        "longformDoNotConfuseWith": "Percentage of ICU patients who do not recover; note that fatalities always go to the ICU—this rate is separate from the Case Fatality Rate, which is computed and displayed based on the rates patients move through all stages of the model.",
+        "longformDescription": "Percentage of ICU patients who do not recover; note that fatalities always go to the ICU—this rate is separate from the Case Fatality Rate, which is computed and displayed based on the rates patients move through all stages of the model.",
+        "longformDoNotConfuseWith": "",
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
     "percentage_of_cases_asymptomatic": {
-        "description": "Percentage of asymptomatic people",
+        "description": "Percentage of Asymptomatic Cases",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.3,
         "minValue": 0,
