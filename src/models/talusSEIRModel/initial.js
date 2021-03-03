@@ -43,8 +43,6 @@ const getInitial = ({
         asymp: 0,
     }
 
-    console.log(initial.death_rate_for_critical)
-
     // do we need different size steps?
     // initial.stepDays = 1
 
@@ -167,7 +165,7 @@ const getInitial = ({
     // 1/4 cases are hopsitalized, mild and icu
     // based on proporition of hopsitalized
     // described in params
-    initial.model_cases = "one_in_4_hospitalized"
+    // initial.model_cases = "one_in_4_hospitalized"
 
     initial.hospital_capacity_change_daily_rate = 1.05
     initial.max_hospital_capacity_factor = 2.07

@@ -60,9 +60,7 @@
   $: percentage_of_cases_asymptomatic =
     paramConfig['percentage_of_cases_asymptomatic'].defaultValue
 
-  $: R0 = 2
-
-  $: talus_r0 = 0
+  $: R0 = 0
 
   // Durations
   // Incubation
@@ -203,7 +201,6 @@
     dt,
     N,
     I0,
-    R0,
     D_incbation,
     percentage_of_cases_asymptomatic,
     duration_asymp_infections,
@@ -288,7 +285,7 @@
 
       console.log(`talus r0 ${talusSolution.r0}`)
 
-      talus_r0 = talusSolution.r0
+      R0 = talusSolution.r0
 
       return talusSolution.days
     } else if (selectedModel === MODEL_CUSTOM) {
@@ -334,7 +331,6 @@
     dt,
     N,
     I0,
-    R0,
     D_incbation,
     percentage_of_cases_asymptomatic,
     asymptomatic_infection_duration,
@@ -816,7 +812,12 @@
         />
       </div>
       <div class="column">
-        <p>Computed R0: {talus_r0}</p>
+        <h5>Computed R0: {R0.toFixed(2)}</h5>
+        <p>
+          The initial transmission rate is a function of the asymptomatic and
+          symptomatic transmission rates and durations through each stage of the
+          disease.
+        </p>
         <!-- <ParameterKnob
           p={paramConfig['days_in_hospital']}
           bind:value={D_hospital}
@@ -857,12 +858,26 @@
           bind:popupHTML
         />
         <!-- <ParameterKnob
-          p={paramConfig['days_from_infectious_to_not_infectious']}
-          bind:value={D_infectious}
+          p={paramConfig['icu_capacity']}
+          bind:value={icuCapacity}
           bind:popupHTML
         /> -->
       </div>
       <div class="column">
+        <h5>
+          Computed CFR: {(
+            hospitalization_rate *
+            hospitalized_cases_requiring_icu_care *
+            death_rate_for_critical *
+            (1 - percentage_of_cases_asymptomatic) *
+            100
+          ).toFixed(2)}%
+        </h5>
+        <p>
+          The case fataility rate is a factor of the proportion of cases which
+          are symptomatic, hospitalization rate, ICU Admission rate, and ICU
+          fatality rate.
+        </p>
         <!-- <ParameterKnob
           p={paramConfig['days_in_hospital']}
           bind:value={D_hospital}
@@ -1127,6 +1142,19 @@
     flex: 158px;
     padding: 0px 5px 5px 0px;
     margin: 0px 5px 5px 5px;
+  }
+
+  .column > h5 {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    font-size: 1.2rem;
+    color: #666;
+  }
+
+  .column > p {
+    line-height: 1.4;
+    /* font-size: 1.2em; */
+    color: #666;
   }
 
   .paneltext {
