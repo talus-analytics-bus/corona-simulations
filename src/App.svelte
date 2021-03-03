@@ -825,7 +825,7 @@
         />
       </div>
       <div class="column">
-        <h5>Computed R0: {R0.toFixed(2)}</h5>
+        <h5>Computed {@html math_inline('\\mathcal{R}_0')} {R0.toFixed(2)}</h5>
         <p>
           The initial transmission rate is a function of the asymptomatic and
           symptomatic transmission rates and durations through each stage of the
