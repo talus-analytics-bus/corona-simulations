@@ -248,7 +248,7 @@
         "maxValue": 60,
         "stepValue": 1,
         "unitsDescriptor": "days",
-        "isInteger": false,
+        "isInteger": true,
         "isPercentage": false,
         "longformDescription": "The number of days before an intervention reaches full effect. The effectiveness of the policy each day before full effect is calculated according to a logistic function where the policy is half in effect halfway through the ramp-up period.",
         "longformDoNotConfuseWith": "",
