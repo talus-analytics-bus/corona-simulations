@@ -60,6 +60,10 @@
   $: percentage_of_cases_asymptomatic =
     paramConfig['percentage_of_cases_asymptomatic'].defaultValue
 
+  $: R0 = 2
+
+  $: talus_r0 = 0
+
   // Durations
   // Incubation
   $: D_incbation =
@@ -79,10 +83,13 @@
   // mild to hospitalized
   $: hospitalization_rate = paramConfig['hospitalization_rate'].defaultValue
   // hospital to icu
-  $: icu_rate_from_hospitalized =
-    paramConfig['icu_rate_from_hospitalized'].defaultValue
+  $: hospitalized_cases_requiring_icu_care =
+    paramConfig['hospitalized_cases_requiring_icu_care'].defaultValue
   // icu to dead
-  $: death_rate_from_icu = paramConfig['death_rate_from_icu'].defaultValue
+  $: death_rate_for_critical =
+    paramConfig['death_rate_for_critical'].defaultValue
+
+  $: death_rate_for_critical, console.log(death_rate_for_critical)
 
   // Transmission
   // Mild Infection
@@ -205,7 +212,11 @@
     icu_time_death,
     beta_mild,
     beta_asymp,
-    beta_hospitalized
+    beta_hospitalized,
+    beta_icu,
+    hospitalized_cases_requiring_icu_care,
+    hospitalization_rate,
+    death_rate_for_critical
 
     // D_infectious,
     // D_recovery_mild,
@@ -235,6 +246,8 @@
 
       // console.log(actionMarkers[selectedModel])
 
+      console.log(death_rate_for_critical)
+
       const initial = getInitial({
         // days_to_model: 101 * dt,
         days_to_model: 101 * 8,
@@ -249,6 +262,10 @@
         beta_mild,
         beta_asymp,
         beta_hospitalized,
+        beta_icu,
+        hospitalized_cases_requiring_icu_care,
+        hospitalization_rate,
+        death_rate_for_critical,
       })
       console.log(initial)
 
@@ -269,7 +286,11 @@
       // var duration = end - start
       // console.log(duration)
 
-      return talusSolution
+      console.log(`talus r0 ${talusSolution.r0}`)
+
+      talus_r0 = talusSolution.r0
+
+      return talusSolution.days
     } else if (selectedModel === MODEL_CUSTOM) {
       return P_all_fetched
     } else {
@@ -294,7 +315,6 @@
 
   $: selectedModel = customScenarioGUID ? MODEL_CUSTOM : MODEL_GOH
   $: goh_states_fin = []
-  $: R0 = 2
 
   $: goh_states_fin, console.log(goh_states_fin)
 
@@ -302,7 +322,10 @@
   $: stateMeta = getDefaultStateMeta()
 
   $: P_SEVERE = paramConfig['hospitalization_rate'].defaultValue
-  $: P_ICU = paramConfig['icu_rate_from_hospitalized'].defaultValue
+  $: P_ICU = paramConfig['hospitalized_cases_requiring_icu_care'].defaultValue
+
+  $: death_rate_for_critical, console.log(death_rate_for_critical)
+
   $: P_all_future = get_solution(
     selectedModel,
     P_all_fetched,
@@ -320,7 +343,11 @@
     icu_time_death,
     beta_mild,
     beta_asymp,
-    beta_hospitalized
+    beta_hospitalized,
+    beta_icu,
+    hospitalized_cases_requiring_icu_care,
+    hospitalization_rate,
+    death_rate_for_critical
     // D_infectious,
     // D_recovery_mild,
     // D_hospital,
@@ -740,7 +767,7 @@
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig['icu_rate_from_hospitalized']}
+          p={paramConfig['hospitalized_cases_requiring_icu_care']}
           bind:value={P_ICU}
           bind:popupHTML
         />
@@ -778,17 +805,18 @@
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig['days_from_incubation_to_infectious']}
-          bind:value={D_incbation}
+          p={paramConfig['beta_hospitalized']}
+          bind:value={beta_hospitalized}
           bind:popupHTML
         />
-        <!-- <ParameterKnob
-          p={paramConfig['days_from_infectious_to_not_infectious']}
-          bind:value={D_infectious}
+        <ParameterKnob
+          p={paramConfig['beta_icu']}
+          bind:value={beta_icu}
           bind:popupHTML
-        /> -->
+        />
       </div>
       <div class="column">
+        <p>Computed R0: {talus_r0}</p>
         <!-- <ParameterKnob
           p={paramConfig['days_in_hospital']}
           bind:value={D_hospital}
@@ -806,26 +834,26 @@
 
 <div style="padding-bottom: 10px;">
   <div class="row">
-    <h4>Infection Parameters</h4>
+    <h4>Disease & Treatment Progression</h4>
   </div>
   <div class="row">
     {#if selectedModel === MODEL_GOH}
       <div class="column">
         <ParameterKnob
-          p={paramConfig['population']}
-          bind:value={N}
+          p={paramConfig['hospitalization_rate']}
+          bind:value={hospitalization_rate}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig['initial_infections']}
-          bind:value={I0}
+          p={paramConfig['hospitalized_cases_requiring_icu_care']}
+          bind:value={hospitalized_cases_requiring_icu_care}
           bind:popupHTML
         />
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig['days_from_incubation_to_infectious']}
-          bind:value={D_incbation}
+          p={paramConfig['death_rate_for_critical']}
+          bind:value={death_rate_for_critical}
           bind:popupHTML
         />
         <!-- <ParameterKnob
@@ -835,11 +863,11 @@
         /> -->
       </div>
       <div class="column">
-        <ParameterKnob
+        <!-- <ParameterKnob
           p={paramConfig['days_in_hospital']}
           bind:value={D_hospital}
           bind:popupHTML
-        />
+        /> -->
         <!-- <ParameterKnob
           p={paramConfig['days_in_mild_recovering_state']}
           bind:value={D_recovery_mild}
@@ -850,13 +878,13 @@
   </div>
 </div>
 
-{#each descriptions as [name, contents]}
+<!-- {#each descriptions as [name, contents]}
   <Collapsible title={name} bind:collapsed defaultCollapsed={false}>
     <div>
       {@html contents.html}
     </div>
   </Collapsible>
-{/each}
+{/each} -->
 
 <!-- {#if selectedModel === MODEL_GOH}
 

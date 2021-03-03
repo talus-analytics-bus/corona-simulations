@@ -131,6 +131,8 @@ const talusSEIR = ({
         initial.asymp,
     ]
 
+    const r0 = getRt(0, day, initial, eP, interventions)
+
     // loop through each step of the model 
     for (let step = 0; step <= initial.days_to_model; step += initial.stepDays) {
         day = integrate(integrationMethods.RK4, deriv, day, step, initial.stepDays)
@@ -167,7 +169,7 @@ const talusSEIR = ({
 
     }
 
-    return (days)
+    return ({ r0, days })
 }
 
 export default talusSEIR

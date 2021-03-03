@@ -11,12 +11,16 @@ const getInitial = ({
     icu_time_death,
     beta_mild,
     beta_asymp,
+    beta_hospitalized,
+    beta_icu,
+    hospitalized_cases_requiring_icu_care,
+    hospitalization_rate,
+    death_rate_for_critical,
 }) => {
-
-    console.log(beta_asymp)
 
     const initial = {
         days_to_model,
+        stepDays: 1,
         population,
         exposed,
         presymptomatic_period,
@@ -26,17 +30,23 @@ const getInitial = ({
         icu_time_death,
         beta_mild,
         beta_asymp,
+        beta_hospitalized,
+        beta_icu,
+        hospitalized_cases_requiring_icu_care,
+        hospitalization_rate,
+        death_rate_for_critical,
+        mild: 0,
+        hospitalized: 0,
+        icu: 0,
+        recovered: 0,
+        dead: 0,
+        asymp: 0,
     }
 
-    initial.mild = 0
-    initial.hospitalized = 0
-    initial.icu = 0
-    initial.recovered = 0
-    initial.dead = 0
-    initial.asymp = 0
+    console.log(initial.death_rate_for_critical)
 
     // do we need different size steps?
-    initial.stepDays = 1
+    // initial.stepDays = 1
 
     // define constants used in model parameter calculations
     // initial.observed_daily_growth_rate = 1.17
@@ -107,13 +117,13 @@ const getInitial = ({
     // symptoms [I_2] (new cases per day)
     // This is really beta * N, but it's easier to talk about this way
     // Default: 0.1
-    initial.beta_hospitalized = 0.1
+    // initial.beta_hospitalized = 0.1
     //
     // Transmission rate of infected people with severe
     // symptoms [I_3] (new cases per day)
     // This is really beta * N, but it's easier to talk about this way
     // Default: 0.1
-    initial.beta_icu = 0.1
+    // initial.beta_icu = 0.1
     //
     //////////////////////////////////
 
@@ -124,15 +134,15 @@ const getInitial = ({
 
     initial.percent_infectious_symptomatic = 1 - initial.percent_asymp
 
-    initial.hospitalization_rate = 0.10
+    // initial.hospitalization_rate = 0.10
     // initial.hospitalization_rate = 0.15
-    initial.hospitalized_cases_requiring_icu_care = 0.25
+    // initial.hospitalized_cases_requiring_icu_care = 0.25
 
     initial.percent_symptomatic_mild =
         initial.percent_infectious_symptomatic - initial.hospitalization_rate
 
     // changed this from CFR to make the calc of mu clearer
-    initial.death_rate_for_critical = 0.38
+    // initial.death_rate_for_critical = 0.38
 
     // CFR is calculated from the input parameters vs. fixed
     initial.case_fatality_rate = (

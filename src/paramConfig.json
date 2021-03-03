@@ -120,7 +120,7 @@
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
-    "icu_rate_from_hospitalized": {
+    "hospitalized_cases_requiring_icu_care": {
         "description": "Hospital to ICU rate",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.25,
@@ -135,7 +135,7 @@
         "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
-    "death_rate_from_icu": {
+    "death_rate_for_critical": {
         "description": "Fatality rate among ICU patients",
         "isDefaultValueAutomaticallyGeneratedFromData": false,
         "defaultValue": 0.38,
