@@ -31,7 +31,7 @@ export function getDefaultStateMeta() {
     {
       'key': 'infected',
       'tooltip_title': 'Infected',
-      'tooltip_desc': 'Active mild and asymptomatic infections, excl. hosp & icu',
+      'tooltip_desc': 'Active mild infections, excl. hosp & icu',
       'checkable': true,
       'checked': true,
       // 'color': '#f0027f',
