@@ -69,7 +69,7 @@
       </li>
       {#if peakICUDay < P_all.length - 50}
         <li>Peak ICU on day {peakICUDay}.</li>
-        <li>{peakICUCount} ICU patients at peak.</li>
+        <li>{formatCount(peakICUCount)} ICU patients at peak.</li>
       {:else}
         <li>Peak possibly not reached!</li>
       {/if}
