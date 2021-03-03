@@ -56,8 +56,6 @@ const talusSEIR = ({
     epiParams,
 }) => {
 
-    console.log(interventions)
-
     // making this two letters just to 
     // make the formulas easier to read
     const eP = epiParams
@@ -137,8 +135,6 @@ const talusSEIR = ({
     for (let step = 0; step <= initial.days_to_model; step += initial.stepDays) {
         day = integrate(integrationMethods.RK4, deriv, day, step, initial.stepDays)
 
-        console.log(interventions[0].effect)
-
         // console.log(getInterventionEffect(step, interventions))
 
         // This is where we'll hook this in with
@@ -158,9 +154,10 @@ const talusSEIR = ({
         days.push(
             new UFState(
                 // initial.population - (res.asymp + res.mild + res.hospitalized + res.icu) - res.recovered - res.dead, // suscep
-                0,
+                0, // susceptible 
                 // res.asymp + res.mild + res.hospitalized + res.icu, // infected
-                res.exposed,
+                res.asymp, // infected
+                res.mild,
                 res.hospitalized, // hospitalized
                 res.icu, // icu
                 res.recovered, // recovered 

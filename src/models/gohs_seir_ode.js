@@ -186,10 +186,10 @@ export function goh_default_action_markers() {
     return [
         // new ActionMarkerData(380, "Cold weather", 0.1),
         // new ActionMarkerData(450, "Test", -0.3),
-        new ActionMarkerData(10, 'one', -0.7),
-        new ActionMarkerData(50, 'two', .8),
-        new ActionMarkerData(60, 'three', -.2),
-        new ActionMarkerData(150, 'four', 0.6),
+        new ActionMarkerData(113, 'one', -0.7),
+        new ActionMarkerData(228, 'two', .8),
+        new ActionMarkerData(375, 'three', -.2),
+        new ActionMarkerData(512, 'four', 0.6),
     ]
     // .filter(am => {
     //     // Prevent action markers from falling behind the historical marker
