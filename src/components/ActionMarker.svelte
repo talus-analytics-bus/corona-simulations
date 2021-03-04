@@ -39,7 +39,15 @@
   // export let firstBarDate;
 
   function toggleConfig() {
+    console.log(allActiveActionMarkers)
+    allActiveActionMarkers.forEach(am => {
+      if (am.id !== actionMarkerData.id) am.expanded = false
+    })
+
     actionMarkerData[AM_EXPANDED] = !actionMarkerData[AM_EXPANDED]
+
+    // to trigger re-render of all AMs
+    actionMarkerData[AM_DAY] = actionMarkerData[AM_DAY]
   }
 
   function getAdjustedR0(R0, allActiveActionMarkers, actionMarkerData) {
@@ -55,6 +63,18 @@
     return adjustedR0
   }
 
+  const popToTop = () => {
+    allActiveActionMarkers.forEach(am => {
+      if (am.id !== actionMarkerData.id) {
+        am.clicked = false
+        am.expanded = false
+      } else am.clicked = true
+    })
+
+    // to trigger re-render of all AMs
+    actionMarkerData[AM_DAY] = actionMarkerData[AM_DAY]
+  }
+
   function getLeftPx(actionMarkerData, tmax) {
     // Note: tmax must be in parameters to trigger re-render correctly.
     return xScaleTime(actionMarkerData[AM_DAY])
@@ -67,6 +87,11 @@
     if (actionMarkerData[AM_EXPANDED]) {
       z += 1000000
     }
+
+    if (actionMarkerData['clicked']) {
+      z += 1000000
+    }
+
     // If actionmarker is being dragged, bring as front as possible.
     if (actionMarkerData['dragging']) {
       z += 10000000
@@ -112,6 +137,13 @@
           Math.min(maxX, Math.max(minX, draggedX))
         )
         actionMarkerData['dragging'] = true
+
+        allActiveActionMarkers.forEach(am => {
+          if (am.id !== actionMarkerData.id) {
+            am.clicked = false
+            am.expanded = false
+          }
+        })
       }
     }
 
@@ -143,6 +175,7 @@
 >
   <!-- Drag (clicking anywhere on this div will trigger drag, no other events) -->
   <div
+    on:click={popToTop}
     id={actionMarkerData.id}
     style="pointer-events: all;
                                 position: absolute;
