@@ -54,7 +54,11 @@
   // let oneLineAttribution = `Corosim was created by <a href="https://futurice.com/" style="color: #009f77;">Futurice</a> on top of <a href="https://gabgoh.github.io/">Gabriel Goh's</a> <a href="https://gabgoh.github.io/COVID/index.html">Epidemic Calculator</a>.`
 
   // Initial Setup
-  $: N = paramConfig['population'].defaultValue
+  $: logN = Math.log(paramConfig['population'].defaultValue)
+  $: N = Math.exp(logN).toFixed(0)
+
+  $: logN, N, console.log(N, logN)
+
   $: I0 = paramConfig['initial_infections'].defaultValue
   $: percentage_of_cases_asymptomatic =
     paramConfig['percentage_of_cases_asymptomatic'].defaultValue
@@ -711,7 +715,8 @@
       <div class="column">
         <ParameterKnob
           p={paramConfig['population']}
-          bind:value={N}
+          bind:displayOverrideValue={N}
+          bind:value={logN}
           bind:popupHTML
         />
         <ParameterKnob
@@ -827,7 +832,7 @@
         <!-- <ParameterKnob
           p={paramConfig.policyRampDays}
           bind:value={policyRampDays}
-          bind:popupHTML
+          bind:dlfkjsdopupHTML
         />
         <label
           ><input type="checkbox" bind:checked={logisticRamp} /> Use Logistic Ramp</label

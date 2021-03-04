@@ -16,11 +16,13 @@
 
   export let specialCaseAddToDisplayValue = 0
 
+  export let displayOverrideValue = value
+
   function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
 
-  $: displayValue = value + specialCaseAddToDisplayValue
+  $: displayValue = displayOverrideValue ? displayOverrideValue : value
   $: valueFormatted = p.isInteger
     ? numberWithCommas(displayValue)
     : p.isPercentage
