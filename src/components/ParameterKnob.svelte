@@ -112,33 +112,34 @@
       </div>
     {/if}
   </div>
-</div>
-<div class="slidertext">
-  {valueFormatted}
-  {p.unitsDescriptor}
-</div>
 
-{#if onChange}
-  <input
-    class="range"
-    type="range"
-    on:change={onChange}
-    {value}
-    min={p.minValue}
-    max={p.maxValue}
-    step={p.stepValue}
-  />
-{:else}
-  <input
-    class="range"
-    type="range"
-    on:change={onChange}
-    bind:value
-    min={p.minValue}
-    max={p.maxValue}
-    step={p.stepValue}
-  />
-{/if}
+  {#if onChange}
+    <input
+      class="range"
+      type="range"
+      on:change={onChange}
+      {value}
+      min={p.minValue}
+      max={p.maxValue}
+      step={p.stepValue}
+    />
+  {:else}
+    <input
+      class="range"
+      type="range"
+      on:change={onChange}
+      bind:value
+      min={p.minValue}
+      max={p.maxValue}
+      step={p.stepValue}
+    />
+  {/if}
+
+  <div class="slidertext">
+    {valueFormatted}
+    {p.unitsDescriptor}
+  </div>
+</div>
 
 <style>
   :global(.flaskIcon:hover) {
@@ -147,12 +148,15 @@
   }
 
   .range {
+    margin-top: 5px;
     width: 100%;
   }
 
   .paneltext {
     position: relative;
     margin-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #ededed;
   }
 
   .paneltext:nth-child(1) {

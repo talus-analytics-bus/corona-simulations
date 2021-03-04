@@ -56,7 +56,7 @@
         "isPercentage": false,
         "longformDescription": "Average number of days a mildly ill patient is infectious, before they either recover or move to the hospital.",
         "longformDoNotConfuseWith": "",
-        "longformEffects": "This parameter affects historical estimates.<br><br>This parameter affects model predictions.",
+        "longformEffects": "",
         "longformDefaultValueJustification": ""
     },
     "asymptomatic_infection_duration": {
@@ -110,7 +110,7 @@
         "defaultValue": 0.1,
         "BEFORE YOU CHANGE DEFAULT VALUE, PLEASE READ THE LONG FORM DESCRIPTION!": true,
         "minValue": 0.001,
-        "maxValue": 0.3,
+        "maxValue": 1,
         "stepValue": 0.0001,
         "unitsDescriptor": "%",
         "isInteger": false,
