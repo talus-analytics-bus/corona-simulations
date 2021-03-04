@@ -55,7 +55,7 @@ const getInitial = ({
 
     // when going back to test hypothetical intervnetions in the past,
     // use this to start the data from this date instead of latest reported
-    initial.override_model_start = false
+    // initial.override_model_start = false
 
     // Variables for calculating model parameters Hill -> our names/calcs
     // IncubPeriod: Average incubation period, days - presymptomatic_period

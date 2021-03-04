@@ -16,7 +16,7 @@
 
   export let specialCaseAddToDisplayValue = 0
 
-  export let displayOverrideValue = value
+  export let displayOverrideValue
 
   function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
