@@ -1,5 +1,5 @@
 export class UFState {
-  constructor(susceptible, asymptomatic, inf, hospitalized, icu, recovered, fatalities) {
+  constructor(susceptible, asymptomatic, inf, hospitalized, icu, recovered, fatalities, rt) {
     this['susceptible'] = susceptible
     this['asymptomatic'] = asymptomatic
     this['infected'] = inf
@@ -7,6 +7,7 @@ export class UFState {
     this['icu'] = icu
     this['recovered'] = recovered
     this['fatalities'] = fatalities
+    this['rt'] = rt
   }
 }
 

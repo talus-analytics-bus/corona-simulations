@@ -130,6 +130,8 @@ const talusSEIR = ({
         initial.asymp,
     ]
 
+    const initialDay = day
+
     // percentage of the total policy
     // effectiveness for the first n days 
     // of the policy. 
@@ -151,6 +153,7 @@ const talusSEIR = ({
         day = integrate(integrationMethods.RK4, deriv, day, step, initial.stepDays)
 
         // console.log(getInterventionEffect(step, interventions))
+        // console.log(getRt(step, day, initial, eP, interventions, policyRamp))
 
         // This is where we'll hook this in with
         // the UI from the Finnish team
@@ -163,7 +166,7 @@ const talusSEIR = ({
             recovered: day[4],
             dead: day[5],
             asymp: day[6],
-            // rt: getRt(step, day, initial, eP, interventions),
+            r0: getRt(step, [0], initial, eP, interventions, []),
         }
 
         days.push(
@@ -176,7 +179,8 @@ const talusSEIR = ({
                 res.hospitalized, // hospitalized
                 res.icu, // icu
                 res.recovered, // recovered 
-                res.dead // fatalities
+                res.dead, // fatalities
+                res.r0,
             )
         )
 

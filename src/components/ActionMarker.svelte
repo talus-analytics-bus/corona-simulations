@@ -38,6 +38,8 @@
   export let flashMessage
   // export let firstBarDate;
 
+  export let P_all
+
   function toggleConfig() {
     console.log(allActiveActionMarkers)
     allActiveActionMarkers.forEach(am => {
@@ -50,18 +52,21 @@
     actionMarkerData[AM_DAY] = actionMarkerData[AM_DAY]
   }
 
-  function getAdjustedR0(R0, allActiveActionMarkers, actionMarkerData) {
-    var adjustedR0 = R0
-    const upToIncludingDay = actionMarkerData[AM_DAY]
-    for (var i = 0; i < allActiveActionMarkers.length; i++) {
-      const am = allActiveActionMarkers[i]
-      const day = am[AM_DAY]
-      if (day <= upToIncludingDay) {
-        adjustedR0 *= 1 - am[AM_EFFECT]
-      }
-    }
-    return adjustedR0
-  }
+  //   function getAdjustedR0(R0, allActiveActionMarkers, actionMarkerData) {
+  //     var adjustedR0 = R0
+  //     const upToIncludingDay = actionMarkerData[AM_DAY]
+  //     for (var i = 0; i < allActiveActionMarkers.length; i++) {
+  //       const am = allActiveActionMarkers[i]
+  //       const day = am[AM_DAY]
+  //       if (day <= upToIncludingDay) {
+  //         adjustedR0 *= 1 - am[AM_EFFECT]
+  //       }
+  //     }
+  //     return adjustedR0
+  //   }
+
+  const getAdjustedR0 = (R0, allActiveActionMarkers, actionMarkerData) =>
+    P_all[actionMarkerData[AM_DAY]].rt
 
   const popToTop = () => {
     allActiveActionMarkers.forEach(am => {
@@ -260,7 +265,7 @@
   >
     <div
       style="pointer-events: all; position: absolute; left:{leftPx -
-        1}px; top: -105px; padding-top: 7px; width: 150px;"
+        1}px; top: -105px; padding-top: 7px; width: 250px;"
     >
       <div
         class="caption paneldesc unselectable"

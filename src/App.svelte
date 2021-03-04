@@ -105,7 +105,7 @@
   $: Time = 220
   $: Xmax = 110000
   $: dt = 8
-  $: icuCapacity = paramConfig['icu_capacity'].defaultValue
+  $: icuCapacity = 0 // paramConfig['icu_capacity'].defaultValue
 
   // $: dt, console.log(dt)
 
@@ -313,6 +313,7 @@
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
       m[MODEL_GOH] = [
+        // new ActionMarkerData(45, 'Initial Lockdown', -0.7),
         new ActionMarkerData(110, 'Initial Lockdown', -0.7),
         new ActionMarkerData(218, 'Reopening', 0.8),
         new ActionMarkerData(251, 'Renewed Caution', -0.2),
@@ -655,6 +656,7 @@
           {R0}
           {tmax}
           {Pmax}
+          {P_all}
           bind:allActiveActionMarkers={actionMarkers[selectedModel]}
           bind:actionMarkerData
           bind:Plock
