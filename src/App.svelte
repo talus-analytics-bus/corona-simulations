@@ -313,11 +313,11 @@
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
       m[MODEL_GOH] = [
-        // new ActionMarkerData(45, 'Initial Lockdown', -0.7),
-        new ActionMarkerData(110, 'Initial Lockdown', -0.7),
-        new ActionMarkerData(218, 'Reopening', 0.8),
-        new ActionMarkerData(251, 'Renewed Caution', -0.2),
-        new ActionMarkerData(512, 'Tired of Lockdown', 0.3),
+        new ActionMarkerData(45, 'Initial Lockdown', -0.7),
+        // new ActionMarkerData(110, 'Initial Lockdown', -0.7),
+        // new ActionMarkerData(218, 'Reopening', 0.8),
+        // new ActionMarkerData(251, 'Renewed Caution', -0.2),
+        // new ActionMarkerData(512, 'Tired of Lockdown', 0.3),
       ]
     }
     return m
