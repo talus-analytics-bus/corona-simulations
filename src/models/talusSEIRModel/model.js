@@ -22,8 +22,6 @@ const getInterventionEffect = (t, interventions, policyRamp) => {
     return interventionEffect
 }
 
-// R0 = N*((1-f)BA/gA + f((B1/(p1+g1))+(p1/(p1+g1))(B2/(p2+g2)+ (p2/(p2+g2))(B3/(m+g3)))))
-
 // get Rt for a given day, initial conditions (for calculating
 // susceptible population) and set of epi parameters
 const getRt = (step, day, initial, eP, interventions, policyRamp) =>
@@ -35,40 +33,6 @@ const getRt = (step, day, initial, eP, interventions, policyRamp) =>
             + (eP.rho[2] / (eP.rho[2] + eP.gamma[2])) * (eP.beta[3] / (eP.mu + eP.gamma[3])))
     )
 
-// const getRt = (step, day, initial, eP, interventions, policyRamp) =>
-//     Math.max(initial.population - sum(day), 0) *
-//     (
-//         ((eP.beta[1] * getInterventionEffect(step, interventions, policyRamp)) / (eP.rho[1] + eP.gamma[1]))
-//         + (eP.rho[1] / (eP.rho[1] + eP.gamma[1])) * (eP.beta[2] / (eP.rho[2] + eP.gamma[2]))
-//         + (eP.rho[2] / (eP.rho[2] + eP.gamma[2])) * (eP.beta[3] / (eP.mu + eP.gamma[3]))
-//         * ((eP.beta[4] * getInterventionEffect(step, interventions, policyRamp)) / (eP.gamma[4]))
-//     )
-
-// const getRt = (step, day, initial, eP, interventions, policyRamp) =>
-//     Math.max(initial.population - sum(day), 0) *
-//     (
-//         (
-//             (eP.beta[1] * getInterventionEffect(step, interventions, policyRamp)) / (eP.rho[1] + eP.gamma[1])
-//         )
-//         +
-//         (eP.rho[1] / (eP.rho[1] + eP.gamma[1])) * (eP.beta[2] / (eP.rho[2] + eP.gamma[2]))
-//         +
-//         (eP.rho[2] / (eP.rho[2] + eP.gamma[2])) * (eP.beta[3] / (eP.mu + eP.gamma[3]))
-//         +
-//         (
-//             (eP.beta[4] * getInterventionEffect(step, interventions, policyRamp)) / (eP.gamma[4])
-//         )
-//     )
-
-
-// const getRt = (step, day, initial, eP, interventions, policyRamp) =>
-//     Math.max(initial.population - sum(day), 0) *
-//     (
-//               ((eP.f) * ((eP.beta[1] * getInterventionEffect(step, interventions, policyRamp)) / (eP.rho[1] + eP.gamma[1])))
-//         + ((1 - eP.f) * ((eP.beta[4] * getInterventionEffect(step, interventions, policyRamp)) / (eP.gamma[4])))
-//         + (eP.rho[1] / (eP.rho[1] + eP.gamma[1])) * (eP.beta[2] / (eP.rho[2] + eP.gamma[2]))
-//         + (eP.rho[2] / (eP.rho[2] + eP.gamma[2])) * (eP.beta[3] / (eP.mu + eP.gamma[3]))
-//     )
 
 // the SEIR model itself 
 const talusSEIR = ({

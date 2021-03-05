@@ -98,9 +98,9 @@
   // Asymptomatic
   $: beta_asymp = paramConfig['beta_asymp'].defaultValue
   // Hospitalized
-  $: beta_hospitalized = paramConfig['beta_hospitalized'].defaultValue
+  $: beta_hospitalized = 0 // paramConfig['beta_hospitalized'].defaultValue
   // ICU
-  $: beta_icu = paramConfig['beta_icu'].defaultValue
+  $: beta_icu = 0 // paramConfig['beta_icu'].defaultValue
 
   $: Time = 220
   $: Xmax = 110000
@@ -313,11 +313,11 @@
     if (!m[MODEL_GOH]) {
       // Action markers for Goh have not been set yet; set to default values.
       m[MODEL_GOH] = [
-        new ActionMarkerData(45, 'Initial Lockdown', -0.7),
-        // new ActionMarkerData(110, 'Initial Lockdown', -0.7),
-        // new ActionMarkerData(218, 'Reopening', 0.8),
-        // new ActionMarkerData(251, 'Renewed Caution', -0.2),
-        // new ActionMarkerData(512, 'Tired of Lockdown', 0.3),
+        // new ActionMarkerData(45, 'Initial Lockdown', -0.7),
+        new ActionMarkerData(110, 'Initial Lockdown', -0.7),
+        new ActionMarkerData(218, 'Reopening', 0.8),
+        new ActionMarkerData(251, 'Renewed Caution', -0.2),
+        new ActionMarkerData(512, 'Tired of Lockdown', 0.3),
       ]
     }
     return m
@@ -729,25 +729,13 @@
       </div>
       <div class="column">
         <ParameterKnob
-          p={paramConfig['days_from_incubation_to_infectious']}
-          bind:value={D_incbation}
-          bind:popupHTML
-        />
-        <ParameterKnob
-          p={paramConfig['days_from_infectious_to_not_infectious']}
-          bind:value={days_from_infectious_to_not_infectious}
-          bind:popupHTML
-        />
-      </div>
-      <div class="column">
-        <ParameterKnob
           p={paramConfig['percentage_of_cases_asymptomatic']}
           bind:value={percentage_of_cases_asymptomatic}
           bind:popupHTML
         />
         <ParameterKnob
-          p={paramConfig['asymptomatic_infection_duration']}
-          bind:value={asymptomatic_infection_duration}
+          p={paramConfig['days_from_incubation_to_infectious']}
+          bind:value={D_incbation}
           bind:popupHTML
         />
       </div>
@@ -784,6 +772,18 @@
       </div>
       <div class="column">
         <ParameterKnob
+          p={paramConfig['days_from_infectious_to_not_infectious']}
+          bind:value={days_from_infectious_to_not_infectious}
+          bind:popupHTML
+        />
+        <ParameterKnob
+          p={paramConfig['asymptomatic_infection_duration']}
+          bind:value={asymptomatic_infection_duration}
+          bind:popupHTML
+        />
+      </div>
+      <!-- <div class="column">
+        <ParameterKnob
           p={paramConfig['beta_hospitalized']}
           bind:value={beta_hospitalized}
           bind:popupHTML
@@ -793,7 +793,7 @@
           bind:value={beta_icu}
           bind:popupHTML
         />
-      </div>
+      </div> -->
       <div class="column">
         <h5>Computed {@html math_inline('\\mathcal{R}_0')} {R0.toFixed(2)}</h5>
         <p>
