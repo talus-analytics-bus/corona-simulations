@@ -3,24 +3,6 @@ import { integrationMethods, integrate, sum, dotProduct } from './helpers'
 import { UFState } from '../../user_facing_states.js';
 
 
-
-// [
-//     0.0024726231566347743,
-//     0.0066928509242848554,
-//     0.01798620996209156,
-//     0.04742587317756678,
-//     0.11920292202211755,
-//     0.2689414213699951,
-//     0.5,
-//     0.7310585786300049,
-//     0.8807970779778823,
-//     0.9525741268224334,
-//     0.9820137900379085,
-//     0.9933071490757153,
-//     0.9975273768433653,
-//     0.9990889488055994,
-// ]
-
 // calculate the cumulative effects of each 
 // each policy on a given day, accounting 
 // for the policy effectiveness ramp up
@@ -48,7 +30,8 @@ const getRt = (step, day, initial, eP, interventions, policyRamp) =>
     Math.max(initial.population - sum(day), 0) * (
         ((1 - eP.f) * (eP.beta[1] * getInterventionEffect(step, interventions, policyRamp)) / (eP.rho[1] + eP.gamma[1]))
         + (eP.f * (eP.beta[4] * getInterventionEffect(step, interventions, policyRamp)) / (eP.gamma[4]))
-        + (eP.rho[1] / (eP.rho[1] + eP.gamma[1])) * (eP.beta[2] / (eP.rho[2] + eP.gamma[2])
+        + (eP.rho[1] / (eP.rho[1] + eP.gamma[1]))
+        * (eP.beta[2] / (eP.rho[2] + eP.gamma[2])
             + (eP.rho[2] / (eP.rho[2] + eP.gamma[2])) * (eP.beta[3] / (eP.mu + eP.gamma[3])))
     )
 
