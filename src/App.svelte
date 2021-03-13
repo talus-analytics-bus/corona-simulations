@@ -16,6 +16,8 @@
   import ActionMarker from './components/ActionMarker.svelte'
   import ParameterKnob from './components/ParameterKnob.svelte'
   import Collapsible from './components/Collapsible.svelte'
+  import ExportLink from './components/ExportLink.svelte'
+  import ExportParameters from './components/ExportParameters.svelte'
 
   // Custom utilities
   import { ActionMarkerData, AM_DAY } from './action_marker_data.js'
@@ -711,6 +713,7 @@
   </div>
 {/if}
 
+
 <Collapsible title="Basic Parameters" bind:collapsed defaultCollapsed={false}>
   <div>
     <div class="row">
@@ -859,6 +862,28 @@
     </div>
   </div>
 </Collapsible>
+
+<div class="row">
+
+<ExportLink P_all={P_all}/>
+<ExportParameters {...{
+    N,
+    I0,
+    percentage_of_cases_asymptomatic,
+    D_incbation,
+    days_from_infectious_to_not_infectious,
+    asymptomatic_infection_duration,
+    icu_time_death,
+    D_hospital,
+    beta_mild,
+    beta_asymp,
+    hospitalized_cases_requiring_icu_care,
+    hospitalization_rate,
+    death_rate_for_critical,
+    R0,
+    actionMarkers,
+  }} />
+</div>
 
 <div class="bottomPadding" />
 
