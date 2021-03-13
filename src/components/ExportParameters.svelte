@@ -62,6 +62,22 @@ actionMarkers.goh.forEach(am => {
 })
 
 
+csvString += `\r\n
+Data Dictionary (Model Export Column Definitions)
+
+Column, Definition 
+susceptible, The number of people who could potentially be infected by the disease. On day zero this population is simply the total population less the number of initial infections; each day thereafter it is the number of people who have never been exposed. 
+asymptomatic, Cases where a person is infected but they show no symptoms. They can however infect other people. 
+infected, Mild illnesses; infections where the person is showing mild symptoms but is not severe enough to need additional care. These people can infect others.
+hospitalized, Severe illnesses; infections that have progressed to the point of needing hospital care. These people do not infect others.
+icu, Critical illesses; patients that have been moved to ICU care. These people do not infect others.
+recovered, People who have recovered from the disease and are now immunne. They cannot be re-infected.
+fatalities, People who have passed away from the disease. 
+r_0, The post-intervention R_0 value; this value will change immediately after an intervention. 
+total symptomatic, The total number of symptomatic infections; mild + severe + critical. 
+total infected, The total number of infections; this is the total symptomatic infections plus the number of asymptomatic infections.
+`
+
 
 
 </script>
