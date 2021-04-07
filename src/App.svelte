@@ -866,23 +866,23 @@
 <div class="row">
 
 <ExportLink P_all={P_all}/>
-<ExportParameters {...{
-    N,
-    I0,
-    percentage_of_cases_asymptomatic,
-    D_incbation,
-    days_from_infectious_to_not_infectious,
-    asymptomatic_infection_duration,
-    icu_time_death,
-    D_hospital,
-    beta_mild,
-    beta_asymp,
-    hospitalized_cases_requiring_icu_care,
-    hospitalization_rate,
-    death_rate_for_critical,
-    R0,
-    actionMarkers,
-  }} />
+<ExportParameters 
+    N={N}
+    I0={I0}
+    percentage_of_cases_asymptomatic={percentage_of_cases_asymptomatic}
+    D_incbation={D_incbation}
+    days_from_infectious_to_not_infectious={days_from_infectious_to_not_infectious}
+    asymptomatic_infection_duration={asymptomatic_infection_duration}
+    icu_time_death={icu_time_death}
+    D_hospital={D_hospital}
+    beta_mild={beta_mild}
+    beta_asymp={beta_asymp}
+    hospitalized_cases_requiring_icu_care={hospitalized_cases_requiring_icu_care}
+    hospitalization_rate={hospitalization_rate}
+    death_rate_for_critical={death_rate_for_critical}
+    R0={R0}
+    actionMarkers={actionMarkers} 
+  />
 </div>
 
 <div class="bottomPadding" />
